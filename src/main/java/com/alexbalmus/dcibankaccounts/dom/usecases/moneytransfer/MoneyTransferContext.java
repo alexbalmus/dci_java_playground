@@ -3,13 +3,28 @@ package com.alexbalmus.dcibankaccounts.dom.usecases.moneytransfer;
 import com.alexbalmus.dcibankaccounts.dom.entities.Account;
 import com.alexbalmus.dcibankaccounts.repositories.AccountsRepository;
 
-public class MoneyTransfer
+public class MoneyTransferContext
 {
-    final private SourceAccountRole sourceAccount;
-    final private DestinationAccountRole destinationAccount;
-    final private Double amount;
+    private final SourceAccountRole sourceAccount;
+    private final DestinationAccountRole destinationAccount;
+    private final Double amount;
 
-    public MoneyTransfer(
+    protected SourceAccountRole getSourceAccount()
+    {
+        return sourceAccount;
+    }
+
+    protected DestinationAccountRole getDestinationAccount()
+    {
+        return destinationAccount;
+    }
+
+    protected Double getAmount()
+    {
+        return amount;
+    }
+
+    public MoneyTransferContext(
             final Double amount,
             final AccountsRepository accountsRepository,
             final Long sourceId,
