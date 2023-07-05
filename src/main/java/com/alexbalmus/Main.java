@@ -15,7 +15,7 @@ public class Main {
         out.println("Destination account: " + destination.getBalance());
         MoneyTransferContext moneyTransferContext = new MoneyTransferContext(50.0, accountsRepository,
                 source.getId(), destination.getId());
-        out.println("Transfering 50 from source to destination.");
+        out.println("Transferring 50 from source to destination.");
         moneyTransferContext.execute();
         out.println("Source account: " + source.getBalance());
         out.println("Destination account: " + destination.getBalance());
