@@ -7,13 +7,6 @@ interface DestinationAccountRole extends Role<Account>
 {
     default void receive(Double amount)
     {
-        try
-        {
-            self().increaseBalanceBy(amount);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        self().increaseBalanceBy(amount);
     }
 }
