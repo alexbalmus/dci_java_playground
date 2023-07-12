@@ -5,16 +5,16 @@ import com.alexbalmus.dcibankaccounts.repositories.AccountsRepository;
 
 public class MoneyTransferContext
 {
-    private final SourceAccountRole sourceAccount;
-    private final DestinationAccountRole destinationAccount;
+    private final Account_SourceRole sourceAccount;
+    private final Account_DestinationRole destinationAccount;
     private final Double amount;
 
-    protected SourceAccountRole getSourceAccount()
+    protected Account_SourceRole getSourceAccount()
     {
         return sourceAccount;
     }
 
-    protected DestinationAccountRole getDestinationAccount()
+    protected Account_DestinationRole getDestinationAccount()
     {
         return destinationAccount;
     }
@@ -31,8 +31,8 @@ public class MoneyTransferContext
             final Long destinationId)
     {
         this.amount = amount;
-        this.sourceAccount = assignSourceAccountRoleTo(accountsRepository.findById(sourceId));
-        this.destinationAccount = assignDestinationAccountRoleTo(accountsRepository.findById(destinationId));
+        this.sourceAccount = assignSourceRoleTo(accountsRepository.findById(sourceId));
+        this.destinationAccount = assignDestinationRoleTo(accountsRepository.findById(destinationId));
     }
 
     public void execute()
@@ -40,12 +40,12 @@ public class MoneyTransferContext
         sourceAccount.transfer(amount, destinationAccount);
     }
 
-    SourceAccountRole assignSourceAccountRoleTo(final Account source)
+    Account_SourceRole assignSourceRoleTo(final Account source)
     {
         return () -> source;
     }
 
-    DestinationAccountRole assignDestinationAccountRoleTo(final Account destination)
+    Account_DestinationRole assignDestinationRoleTo(final Account destination)
     {
         return () -> destination;
     }

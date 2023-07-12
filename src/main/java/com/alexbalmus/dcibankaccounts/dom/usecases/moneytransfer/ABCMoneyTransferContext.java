@@ -6,7 +6,7 @@ import com.alexbalmus.dcibankaccounts.repositories.AccountsRepository;
 public class ABCMoneyTransferContext
 {
     private final MoneyTransferContext moneyTransferContext;
-    private final SourceAndDestinationAccountRole intermediaryAccount;
+    private final Account_SourceAndDestinationRole intermediaryAccount;
     public ABCMoneyTransferContext(
             final Double amount,
             final AccountsRepository accountsRepository,
@@ -15,7 +15,7 @@ public class ABCMoneyTransferContext
             final Long destinationId)
     {
         moneyTransferContext = new MoneyTransferContext(amount, accountsRepository, sourceId, destinationId);
-        intermediaryAccount = assignSourceAndDestinationAccountRoleTo(accountsRepository.findById(intermediaryId));
+        intermediaryAccount = assignSourceAndDestinationRoleTo(accountsRepository.findById(intermediaryId));
     }
 
     public void execute()
@@ -24,7 +24,7 @@ public class ABCMoneyTransferContext
         intermediaryAccount.transfer(moneyTransferContext.getAmount(), moneyTransferContext.getDestinationAccount());
     }
 
-    SourceAndDestinationAccountRole assignSourceAndDestinationAccountRoleTo(final Account account)
+    Account_SourceAndDestinationRole assignSourceAndDestinationRoleTo(final Account account)
     {
         return () -> account;
     }
