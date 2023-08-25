@@ -1,4 +1,4 @@
-package com.alexbalmus.dcibankaccounts.dom.entities;
+package com.alexbalmus.dcibankaccounts.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,4 +1,4 @@
-package com.alexbalmus.dcibankaccounts.dom.usecases.moneytransfer;
+package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
 
 public interface Account_SourceAndDestinationRole extends Account_SourceRole, Account_DestinationRole
 {

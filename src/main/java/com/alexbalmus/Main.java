@@ -1,7 +1,7 @@
 package com.alexbalmus;
 
-import com.alexbalmus.dcibankaccounts.dom.entities.Account;
-import com.alexbalmus.dcibankaccounts.dom.usecases.moneytransfer.MoneyTransferContext;
+import com.alexbalmus.dcibankaccounts.entities.Account;
+import com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext;
 import com.alexbalmus.dcibankaccounts.repositories.AccountsRepository;
 
 import static java.lang.System.out;

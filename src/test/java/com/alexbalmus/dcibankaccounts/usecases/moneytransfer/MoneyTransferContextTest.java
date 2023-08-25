@@ -1,6 +1,6 @@
-package com.alexbalmus.dcibankaccounts.dom.usecases.moneytransfer;
+package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
 
-import com.alexbalmus.dcibankaccounts.dom.entities.Account;
+import com.alexbalmus.dcibankaccounts.entities.Account;
 import com.alexbalmus.dcibankaccounts.repositories.AccountsRepository;
 import org.testng.annotations.Test;
 

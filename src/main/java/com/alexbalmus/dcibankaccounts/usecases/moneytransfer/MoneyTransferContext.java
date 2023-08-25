@@ -1,6 +1,6 @@
-package com.alexbalmus.dcibankaccounts.dom.usecases.moneytransfer;
+package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
 
-import com.alexbalmus.dcibankaccounts.dom.entities.Account;
+import com.alexbalmus.dcibankaccounts.entities.Account;
 import com.alexbalmus.dcibankaccounts.repositories.AccountsRepository;
 
 public class MoneyTransferContext
@@ -9,17 +9,17 @@ public class MoneyTransferContext
     private final Account_DestinationRole destinationAccount;
     private final Double amount;
 
-    protected Account_SourceRole getSourceAccount()
+    Account_SourceRole getSourceAccount()
     {
         return sourceAccount;
     }
 
-    protected Account_DestinationRole getDestinationAccount()
+    Account_DestinationRole getDestinationAccount()
     {
         return destinationAccount;
     }
 
-    protected Double getAmount()
+    Double getAmount()
     {
         return amount;
     }
