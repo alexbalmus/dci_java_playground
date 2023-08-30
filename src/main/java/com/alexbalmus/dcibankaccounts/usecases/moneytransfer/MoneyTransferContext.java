@@ -45,6 +45,19 @@ public class MoneyTransferContext
         return () -> source;
     }
 
+//    Old-school alternative to the above:
+//    Account_SourceRole assignSourceRoleTo(final Account source)
+//    {
+//        return new Account_SourceRole()
+//        {
+//            @Override
+//            public Account self()
+//            {
+//                return source;
+//            }
+//        };
+//    }
+
     Account_DestinationRole assignDestinationRoleTo(final Account destination)
     {
         return () -> destination;
