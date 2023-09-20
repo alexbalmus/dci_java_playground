@@ -49,7 +49,7 @@ Starting with Java 8 this can be done very elegandly behind the scenes using a l
         return () -> source;
     }
 
-The old-school alternative would look like:
+The old-school (less pleasant) alternative to the above would look like:
 
     Account_SourceRole assignSourceRoleTo(final Account source)
     {
