@@ -1,5 +1,5 @@
 # DCI Java Playground
-Experimenting with the DCI (Data-Context-Interaction) architecture in Java.
+Experimenting with the DCI (Data-Context-Interaction) paradigm in Java.
 
 If you are new to DCI, then it's recommended you read the following article first:
 https://fulloo.info/Documents/ArtimaDCI.html
