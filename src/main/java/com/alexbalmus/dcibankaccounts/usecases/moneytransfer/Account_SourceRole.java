@@ -3,6 +3,7 @@ package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
 import com.alexbalmus.dcibankaccounts.entities.Account;
 import com.alexbalmus.dcibankaccounts.usecases.Role;
 
+@java.lang.SuppressWarnings("java:S114")
 interface Account_SourceRole extends Role<Account>
 {
     String INSUFFICIENT_FUNDS = "Insufficient funds.";
@@ -12,7 +13,7 @@ interface Account_SourceRole extends Role<Account>
         // Begin transaction.
         if (self().getBalance() < amount)
         {
-            throw new RuntimeException(INSUFFICIENT_FUNDS); // Rollback.
+            throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
         }
         self().decreaseBalanceBy(amount);
         destination.receive(amount);
