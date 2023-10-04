@@ -6,8 +6,10 @@ import com.alexbalmus.dcibankaccounts.repositories.AccountsRepository;
 
 import static java.lang.System.out;
 
-public class Main {
-    public static void main(String[] args) {
+public class Main
+{
+    public static void main(String[] args)
+    {
         AccountsRepository accountsRepository = new AccountsRepository();
         Account source = accountsRepository.create(100.0);
         out.println("Source account: " + source.getBalance());

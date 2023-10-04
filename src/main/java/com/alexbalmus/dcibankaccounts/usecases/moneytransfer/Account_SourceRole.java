@@ -7,7 +7,7 @@ interface Account_SourceRole extends Role<Account>
 {
     String INSUFFICIENT_FUNDS = "Insufficient funds.";
 
-    default void transfer(Double amount, Account_DestinationRole destination)
+    default void transfer(final Double amount, final Account_DestinationRole destination)
     {
         // Begin transaction.
         if (self().getBalance() < amount)

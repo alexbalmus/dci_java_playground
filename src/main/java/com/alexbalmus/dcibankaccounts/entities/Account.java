@@ -3,22 +3,25 @@ package com.alexbalmus.dcibankaccounts.entities;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 public class Account
 {
     private Long id;
     private Double balance;
-    public void increaseBalanceBy(Double amount)
+
+    protected Account()
+    {
+    }
+
+    public void increaseBalanceBy(final Double amount)
     {
         balance += amount;
     }
 
-    public void decreaseBalanceBy(Double amount)
+    public void decreaseBalanceBy(final Double amount)
     {
         balance -= amount;
     }

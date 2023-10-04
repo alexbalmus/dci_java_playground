@@ -5,7 +5,7 @@ import com.alexbalmus.dcibankaccounts.usecases.Role;
 
 interface Account_DestinationRole extends Role<Account>
 {
-    default void receive(Double amount)
+    default void receive(final Double amount)
     {
         self().increaseBalanceBy(amount);
     }
