@@ -5,7 +5,7 @@ If you are new to DCI, then it's recommended you read the following article firs
 https://fulloo.info/Documents/ArtimaDCI.html
 
 Approach taken for roles in Java: interfaces with default methods 
-(one of the suggestions from the Wikipedia article listed in the More info section). 
+(one of the suggestions from the Wikipedia article listed in the "More info" section below). 
 
 We start out with a generic SAM (Single Abstract Method) interface called Role having a method self() 
 which would return a reference to the target (role playing) object (the equivalent of "this"):
