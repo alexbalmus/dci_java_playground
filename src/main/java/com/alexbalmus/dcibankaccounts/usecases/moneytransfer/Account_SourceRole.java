@@ -10,13 +10,11 @@ interface Account_SourceRole extends Role<Account>
 
     default void transfer(final Double amount, final Account_DestinationRole destination)
     {
-        // Begin transaction.
         if (self().getBalance() < amount)
         {
             throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
         }
         self().decreaseBalanceBy(amount);
         destination.receive(amount);
-        // End transaction.
     }
 }

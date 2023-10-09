@@ -1,29 +1,53 @@
 package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
 
-import com.alexbalmus.dcibankaccounts.entities.Account;
-import com.alexbalmus.dcibankaccounts.repositories.AccountsRepository;
-import org.testng.annotations.Test;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import static org.testng.Assert.assertEquals;
 
-public class ABCMoneyTransferContextTest {
+import org.mockito.Mock;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+
+import com.alexbalmus.dcibankaccounts.entities.Account;
+
+@Test
+public class ABCMoneyTransferContextTest
+{
+    @Mock
+    private EntityManager entityManager;
+
+    @Mock
+    private EntityTransaction entityTransaction;
+
+    @BeforeMethod
+    void setup()
+    {
+        initMocks(this);
+        doNothing().when(entityTransaction).begin();
+        doNothing().when(entityTransaction).commit();
+        when(entityManager.getTransaction()).thenReturn(entityTransaction);
+    }
 
     @Test
     public void testExecute()
     {
-        AccountsRepository accountsRepository = new AccountsRepository();
+        Account source = new Account(100.0);
+        Account intermediary = new Account(0.0);
+        Account destination = new Account(200.0);
 
-        Account source = accountsRepository.create(100.0);
-        Account intermediary = accountsRepository.create(0.0);
-        Account destination = accountsRepository.create(200.0);
+        ABCMoneyTransferContext abcMoneyTransferContext = new ABCMoneyTransferContext(entityManager,50.0,
+            source, intermediary, destination);
 
-        ABCMoneyTransferContext moneyTransferContext = new ABCMoneyTransferContext(50.0, accountsRepository,
-                source.getId(), intermediary.getId(), destination.getId());
+        abcMoneyTransferContext.execute();
 
-        moneyTransferContext.execute();
-
-        assertEquals(source.getBalance(), 50);
-        assertEquals(intermediary.getBalance(), 0);
-        assertEquals(destination.getBalance(), 250);
+        assertEquals(source.getBalance(), 50.0);
+        assertEquals(intermediary.getBalance(), 0.0);
+        assertEquals(destination.getBalance(), 250.0);
     }
 }

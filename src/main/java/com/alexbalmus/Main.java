@@ -1,25 +1,79 @@
 package com.alexbalmus;
 
-import com.alexbalmus.dcibankaccounts.entities.Account;
-import com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext;
-import com.alexbalmus.dcibankaccounts.repositories.AccountsRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 
-import static java.lang.System.out;
+import com.alexbalmus.dcibankaccounts.entities.Account;
+import com.alexbalmus.dcibankaccounts.usecases.moneytransfer.ABCMoneyTransferContext;
+import com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext;
+
 
 public class Main
 {
     public static void main(String[] args)
     {
-        AccountsRepository accountsRepository = new AccountsRepository();
-        Account source = accountsRepository.create(100.0);
-        out.println("Source account: " + source.getBalance());
-        Account destination = accountsRepository.create(200.0);
-        out.println("Destination account: " + destination.getBalance());
-        MoneyTransferContext moneyTransferContext = new MoneyTransferContext(50.0, accountsRepository,
-                source.getId(), destination.getId());
-        out.println("Transferring 50 from source to destination.");
+        EntityManagerFactory entityManagerFactory =
+            Persistence.createEntityManagerFactory("com.alexbalmus.dcibankaccounts.persistenceunit");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+        try
+        {
+            System.out.println("\nExecuting A to B money transfer scenario: \n");
+            executeAToBMoneyTransferScenario(entityManager);
+
+            System.out.println("\nExecuting A to B to C money transfer scenario: \n");
+            executeAToBToCMoneyTransferScenario(entityManager);
+        }
+        finally
+        {
+            entityManager.close();
+            entityManagerFactory.close();
+        }
+    }
+
+    public static void executeAToBMoneyTransferScenario(final EntityManager entityManager)
+    {
+        Account source = new Account(100.0);
+        entityManager.persist(source);
+        System.out.println("Source account: " + source.getBalance());
+
+        Account destination = new Account(200.0);
+        entityManager.persist(destination);
+        System.out.println("Destination account: " + destination.getBalance());
+
+        MoneyTransferContext moneyTransferContext =
+            new MoneyTransferContext(entityManager, 50.0, source, destination);
+
+        System.out.println("Transferring 50 from Source to Destination.");
         moneyTransferContext.execute();
-        out.println("Source account: " + source.getBalance());
-        out.println("Destination account: " + destination.getBalance());
+
+        System.out.println("Source account: " + source.getBalance());
+        System.out.println("Destination account: " + destination.getBalance());
+    }
+
+    public static void executeAToBToCMoneyTransferScenario(final EntityManager entityManager)
+    {
+        Account source = new Account(100.0);
+        entityManager.persist(source);
+        System.out.println("Source account: " + source.getBalance());
+
+        Account intermediary = new Account(0.0);
+        entityManager.persist(intermediary);
+        System.out.println("Intermediary account: " + intermediary.getBalance());
+
+        Account destination = new Account(200.0);
+        entityManager.persist(destination);
+        System.out.println("Destination account: " + destination.getBalance());
+
+        ABCMoneyTransferContext abcMoneyTransferContext = new ABCMoneyTransferContext(entityManager,50.0,
+            source, intermediary, destination);
+
+        System.out.println("Transferring 50 from Source to Destination via Intermediary.");
+        abcMoneyTransferContext.execute();
+
+        System.out.println("Source account: " + source.getBalance());
+        System.out.println("Intermediary account: " + intermediary.getBalance());
+        System.out.println("Destination account: " + destination.getBalance());
     }
 }

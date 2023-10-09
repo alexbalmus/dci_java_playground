@@ -23,16 +23,14 @@ An actual role might look something like this:
     {
         String INSUFFICIENT_FUNDS = "Insufficient funds.";
     
-        default void transfer(Double amount, Account_DestinationRole destination)
+        default void transfer(final Double amount, final Account_DestinationRole destination)
         {
-            // Begin transaction.
             if (self().getBalance() < amount)
             {
-                throw new RuntimeException(INSUFFICIENT_FUNDS); // Rollback.
+                throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
             }
             self().decreaseBalanceBy(amount);
             destination.receive(amount);
-            // End transaction.
         }
     }
 
@@ -42,7 +40,7 @@ Now, for the actual "role injection" that will be done inside a context, this wi
 anonymous inner class that implements a role interface and who's instance will wrap the target object; 
 the implementation of the self() method will return the wrapped target object.
 
-Starting with Java 8 this can be done very elegandly behind the scenes using a lambda expression:
+Starting with Java 8 this can be done very elegantly behind the scenes using a lambda expression:
 
     Account_SourceRole assignSourceRoleTo(final Account source)
     {
@@ -68,14 +66,18 @@ and then kick-off the use case:
 
     ...
 
-    this.sourceAccount = assignSourceRoleTo(accountsRepository.findById(sourceId));
-    this.destinationAccount = assignDestinationRoleTo(accountsRepository.findById(destinationId));
+    this.sourceAccount = assignSourceRoleTo(source);
+    this.destinationAccount = assignDestinationRoleTo(destination);
     
     ...
 
     public void execute()
     {
+        entityManager.getTransaction().begin();
+
         sourceAccount.transfer(amount, destinationAccount);
+
+        entityManager.getTransaction().commit();
     }
 
 https://github.com/alexbalmus/dci_java_playground/blob/main/src/main/java/com/alexbalmus/dcibankaccounts/usecases/moneytransfer/MoneyTransferContext.java

@@ -1,13 +1,14 @@
 package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
 
 import com.alexbalmus.dcibankaccounts.entities.Account;
-import com.alexbalmus.dcibankaccounts.repositories.AccountsRepository;
+import jakarta.persistence.EntityManager;
 
 public class MoneyTransferContext
 {
     private final Account_SourceRole sourceAccount;
     private final Account_DestinationRole destinationAccount;
     private final Double amount;
+    private final EntityManager entityManager;
 
     Account_SourceRole getSourceAccount()
     {
@@ -25,19 +26,24 @@ public class MoneyTransferContext
     }
 
     public MoneyTransferContext(
-            final Double amount,
-            final AccountsRepository accountsRepository,
-            final Long sourceId,
-            final Long destinationId)
+        final EntityManager entityManager,
+        final Double amount,
+        final Account source,
+        final Account destination)
     {
+        this.entityManager = entityManager;
         this.amount = amount;
-        this.sourceAccount = assignSourceRoleTo(accountsRepository.findById(sourceId));
-        this.destinationAccount = assignDestinationRoleTo(accountsRepository.findById(destinationId));
+        this.sourceAccount = assignSourceRoleTo(source);
+        this.destinationAccount = assignDestinationRoleTo(destination);
     }
 
     public void execute()
     {
+        entityManager.getTransaction().begin();
+
         sourceAccount.transfer(amount, destinationAccount);
+
+        entityManager.getTransaction().commit();
     }
 
     Account_SourceRole assignSourceRoleTo(final Account source)
