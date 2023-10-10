@@ -73,11 +73,22 @@ and then kick-off the use case:
 
     public void execute()
     {
-        entityManager.getTransaction().begin();
+        var transaction = entityManager.getTransaction();
 
-        sourceAccount.transfer(amount, destinationAccount);
-
-        entityManager.getTransaction().commit();
+        try
+        {
+            transaction.begin();
+            sourceAccount.transfer(amount, destinationAccount);
+            transaction.commit();
+        }
+        catch (Exception e)
+        {
+            if (transaction.isActive())
+            {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 
 https://github.com/alexbalmus/dci_java_playground/blob/main/src/main/java/com/alexbalmus/dcibankaccounts/usecases/moneytransfer/MoneyTransferContext.java
