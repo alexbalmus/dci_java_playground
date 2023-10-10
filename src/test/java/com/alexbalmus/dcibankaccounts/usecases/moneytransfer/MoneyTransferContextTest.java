@@ -67,5 +67,8 @@ public class MoneyTransferContextTest
         {
             assertEquals(e.getMessage(), Account_SourceRole.INSUFFICIENT_FUNDS);
         }
+
+        assertEquals(source.getBalance(), 20.0);
+        assertEquals(destination.getBalance(), 200.0);
     }
 }

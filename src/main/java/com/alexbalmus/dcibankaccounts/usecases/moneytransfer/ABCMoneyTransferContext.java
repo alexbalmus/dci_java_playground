@@ -20,12 +20,26 @@ public class ABCMoneyTransferContext
 
     public void execute()
     {
-        entityManager.getTransaction().begin();
+        var transaction = entityManager.getTransaction();
 
-        moneyTransferContext.getSourceAccount().transfer(moneyTransferContext.getAmount(), intermediaryAccount);
-        intermediaryAccount.transfer(moneyTransferContext.getAmount(), moneyTransferContext.getDestinationAccount());
+        try
+        {
+            transaction.begin();
 
-        entityManager.getTransaction().commit();
+            moneyTransferContext.getSourceAccount().transfer(moneyTransferContext.getAmount(), intermediaryAccount);
+            intermediaryAccount.transfer(moneyTransferContext.getAmount(),
+                moneyTransferContext.getDestinationAccount());
+
+            transaction.commit();
+        }
+        catch (Exception e)
+        {
+            if (transaction.isActive())
+            {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 
     Account_SourceAndDestinationRole assignSourceAndDestinationRoleTo(final Account account)

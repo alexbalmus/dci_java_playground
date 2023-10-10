@@ -39,11 +39,22 @@ public class MoneyTransferContext
 
     public void execute()
     {
-        entityManager.getTransaction().begin();
+        var transaction = entityManager.getTransaction();
 
-        sourceAccount.transfer(amount, destinationAccount);
-
-        entityManager.getTransaction().commit();
+        try
+        {
+            transaction.begin();
+            sourceAccount.transfer(amount, destinationAccount);
+            transaction.commit();
+        }
+        catch (Exception e)
+        {
+            if (transaction.isActive())
+            {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 
     Account_SourceRole assignSourceRoleTo(final Account source)
