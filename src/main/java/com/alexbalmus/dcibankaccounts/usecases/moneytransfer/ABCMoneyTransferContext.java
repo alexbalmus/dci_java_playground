@@ -11,11 +11,14 @@ public class ABCMoneyTransferContext
 
     public ABCMoneyTransferContext(
         final EntityManager entityManager,
-        final Double amount, Account source, Account intermediary, Account destination)
+        final Double amount,
+        final Long sourceId,
+        final Long intermediaryId,
+        final Long destinationId)
     {
         this.entityManager = entityManager;
-        moneyTransferContext = new MoneyTransferContext(entityManager, amount, source, destination);
-        intermediaryAccount = assignSourceAndDestinationRoleTo(intermediary);
+        moneyTransferContext = new MoneyTransferContext(entityManager, amount, sourceId, destinationId);
+        intermediaryAccount = assignSourceAndDestinationRoleTo(entityManager.find(Account.class, intermediaryId));
     }
 
     public void execute()
@@ -26,7 +29,9 @@ public class ABCMoneyTransferContext
         {
             transaction.begin();
 
-            moneyTransferContext.getSourceAccount().transfer(moneyTransferContext.getAmount(), intermediaryAccount);
+            moneyTransferContext.getSourceAccount()
+                .transfer(moneyTransferContext.getAmount(), intermediaryAccount);
+
             intermediaryAccount.transfer(moneyTransferContext.getAmount(),
                 moneyTransferContext.getDestinationAccount());
 
@@ -59,4 +64,5 @@ public class ABCMoneyTransferContext
 //            }
 //        };
 //    }
+
 }

@@ -7,7 +7,7 @@ https://fulloo.info/Documents/ArtimaDCI.html
 Approach taken for roles in Java: interfaces with default methods 
 (one of the suggestions from the Wikipedia article listed in the "More info" section below). 
 
-We start out with a generic SAM (Single Abstract Method) interface called Role having a method self() 
+We start out with a generic functional/SAM (Single Abstract Method) interface called Role having a method self() 
 which would return a reference to the target (role playing) object (the equivalent of "this"):
 
     public interface Role<T>
@@ -116,7 +116,7 @@ More info:
 
 https://fulloo.info/ 
 
-https://www.artima.com/articles/the-dci-architecture-a-new-vision-of-object-oriented-programming 
+https://fulloo.info/Documents/ArtimaDCI.html
 
 https://en.wikipedia.org/wiki/Data,_context_and_interaction
 

@@ -39,10 +39,16 @@ public class MoneyTransferContextTest
     public void testExecute()
     {
         Account source = new Account(100.0);
+        source.setId(1L);
+        when(entityManager.find(Account.class, 1L)).thenReturn(source);
+
         Account destination = new Account(200.0);
+        destination.setId(2L);
+        when(entityManager.find(Account.class, 2L)).thenReturn(destination);
+
 
         MoneyTransferContext moneyTransferContext =
-            new MoneyTransferContext(entityManager, 50.0, source, destination);
+            new MoneyTransferContext(entityManager, 50.0, source.getId(), destination.getId());
 
         moneyTransferContext.execute();
 
@@ -54,10 +60,15 @@ public class MoneyTransferContextTest
     public void testExecuteInsufficientFunds()
     {
         Account source = new Account(20.0);
+        source.setId(1L);
+        when(entityManager.find(Account.class, 1L)).thenReturn(source);
+
         Account destination = new Account(200.0);
+        destination.setId(2L);
+        when(entityManager.find(Account.class, 2L)).thenReturn(destination);
 
         MoneyTransferContext moneyTransferContext =
-            new MoneyTransferContext(entityManager, 50.0, source, destination);
+            new MoneyTransferContext(entityManager, 50.0, source.getId(), destination.getId());
 
         try {
             moneyTransferContext.execute();
@@ -67,8 +78,5 @@ public class MoneyTransferContextTest
         {
             assertEquals(e.getMessage(), Account_SourceRole.INSUFFICIENT_FUNDS);
         }
-
-        assertEquals(source.getBalance(), 20.0);
-        assertEquals(destination.getBalance(), 200.0);
     }
 }

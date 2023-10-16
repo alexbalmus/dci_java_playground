@@ -38,11 +38,19 @@ public class ABCMoneyTransferContextTest
     public void testExecute()
     {
         Account source = new Account(100.0);
+        source.setId(1L);
+        when(entityManager.find(Account.class, 1L)).thenReturn(source);
+
         Account intermediary = new Account(0.0);
+        intermediary.setId(2L);
+        when(entityManager.find(Account.class, 2L)).thenReturn(intermediary);
+
         Account destination = new Account(200.0);
+        destination.setId(3L);
+        when(entityManager.find(Account.class, 3L)).thenReturn(destination);
 
         ABCMoneyTransferContext abcMoneyTransferContext = new ABCMoneyTransferContext(entityManager,50.0,
-            source, intermediary, destination);
+            source.getId(), intermediary.getId(), destination.getId());
 
         abcMoneyTransferContext.execute();
 

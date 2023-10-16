@@ -14,7 +14,7 @@ public class Main
     public static void main(String[] args)
     {
         EntityManagerFactory entityManagerFactory =
-            Persistence.createEntityManagerFactory("com.alexbalmus.dcibankaccounts.persistenceunit");
+            Persistence.createEntityManagerFactory("com.alexbalmus.dcibankaccounts");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         try
@@ -43,10 +43,13 @@ public class Main
         System.out.println("Destination account: " + destination.getBalance());
 
         MoneyTransferContext moneyTransferContext =
-            new MoneyTransferContext(entityManager, 50.0, source, destination);
+            new MoneyTransferContext(entityManager, 50.0, source.getId(), destination.getId());
 
         System.out.println("Transferring 50 from Source to Destination.");
         moneyTransferContext.execute();
+
+        source = entityManager.find(Account.class, source.getId());
+        destination = entityManager.find(Account.class, destination.getId());
 
         System.out.println("Source account: " + source.getBalance());
         System.out.println("Destination account: " + destination.getBalance());
@@ -67,7 +70,7 @@ public class Main
         System.out.println("Destination account: " + destination.getBalance());
 
         ABCMoneyTransferContext abcMoneyTransferContext = new ABCMoneyTransferContext(entityManager,50.0,
-            source, intermediary, destination);
+            source.getId(), intermediary.getId(), destination.getId());
 
         System.out.println("Transferring 50 from Source to Destination via Intermediary.");
         abcMoneyTransferContext.execute();

@@ -28,13 +28,13 @@ public class MoneyTransferContext
     public MoneyTransferContext(
         final EntityManager entityManager,
         final Double amount,
-        final Account source,
-        final Account destination)
+        final Long sourceId,
+        final Long destinationId)
     {
         this.entityManager = entityManager;
         this.amount = amount;
-        this.sourceAccount = assignSourceRoleTo(source);
-        this.destinationAccount = assignDestinationRoleTo(destination);
+        this.sourceAccount = assignSourceRoleTo(entityManager.find(Account.class, sourceId));
+        this.destinationAccount = assignDestinationRoleTo(entityManager.find(Account.class, destinationId));
     }
 
     public void execute()
