@@ -37,6 +37,14 @@ public class MoneyTransferContext
         this.destinationAccount = assignDestinationRoleTo(entityManager.find(Account.class, destinationId));
     }
 
+    MoneyTransferContext()
+    {
+        this.entityManager = null;
+        this.amount = null;
+        this.sourceAccount = null;
+        this.destinationAccount = null;
+    }
+
     public void execute()
     {
         var transaction = entityManager.getTransaction();

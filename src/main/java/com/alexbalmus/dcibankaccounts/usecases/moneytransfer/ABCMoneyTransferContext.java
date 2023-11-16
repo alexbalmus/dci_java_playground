@@ -17,8 +17,15 @@ public class ABCMoneyTransferContext
         final Long destinationId)
     {
         this.entityManager = entityManager;
-        moneyTransferContext = new MoneyTransferContext(entityManager, amount, sourceId, destinationId);
-        intermediaryAccount = assignSourceAndDestinationRoleTo(entityManager.find(Account.class, intermediaryId));
+        this.moneyTransferContext = new MoneyTransferContext(entityManager, amount, sourceId, destinationId);
+        this.intermediaryAccount = assignSourceAndDestinationRoleTo(entityManager.find(Account.class, intermediaryId));
+    }
+
+    ABCMoneyTransferContext()
+    {
+        this.entityManager = null;
+        this.moneyTransferContext = null;
+        this.intermediaryAccount = null;
     }
 
     public void execute()

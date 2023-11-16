@@ -5,6 +5,8 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotSame;
 import static org.testng.Assert.fail;
 
 import org.mockito.Mock;
@@ -78,5 +80,19 @@ public class MoneyTransferContextTest
         {
             assertEquals(e.getMessage(), Account_SourceRole.INSUFFICIENT_FUNDS);
         }
+    }
+
+    @Test
+    public void testIdentity()
+    {
+        Account account1 = new Account(20.0);
+        account1.setId(1L);
+
+        MoneyTransferContext moneyTransferContext = new MoneyTransferContext();
+        Account_SourceRole sourceAccount = moneyTransferContext.assignSourceRoleTo(account1);
+
+        assertNotSame(account1, sourceAccount);
+        assertNotEquals(sourceAccount, account1);
+        assertEquals(sourceAccount.self(), account1);
     }
 }

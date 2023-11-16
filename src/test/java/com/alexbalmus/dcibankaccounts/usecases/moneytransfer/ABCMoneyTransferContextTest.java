@@ -58,4 +58,22 @@ public class ABCMoneyTransferContextTest
         assertEquals(intermediary.getBalance(), 0.0);
         assertEquals(destination.getBalance(), 250.0);
     }
+
+    @Test
+    public void testIdentity()
+    {
+        Account account1 = new Account(20.0);
+        account1.setId(1L);
+
+        ABCMoneyTransferContext abcMoneyTransferContext = new ABCMoneyTransferContext();
+        Account_SourceAndDestinationRole bidirectionalAccount =
+            abcMoneyTransferContext.assignSourceAndDestinationRoleTo(account1);
+
+        MoneyTransferContext moneyTransferContext = new MoneyTransferContext();
+        Account_SourceRole sourceRef = moneyTransferContext.assignSourceRoleTo(account1);
+        Account_DestinationRole destRef = moneyTransferContext.assignDestinationRoleTo(account1);
+
+        assertEquals(bidirectionalAccount.self(), sourceRef.self());
+        assertEquals(bidirectionalAccount.self(), destRef.self());
+    }
 }
