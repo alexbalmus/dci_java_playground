@@ -48,11 +48,25 @@ public class Main
         System.out.println("Transferring 50 from Source to Destination.");
         moneyTransferContext.execute();
 
-        source = entityManager.find(Account.class, source.getId());
-        destination = entityManager.find(Account.class, destination.getId());
+        System.out.println("Detaching source...");
+        entityManager.detach(source);
 
-        System.out.println("Source account: " + source.getBalance());
-        System.out.println("Destination account: " + destination.getBalance());
+        System.out.println("Detaching destination...");
+        entityManager.detach(destination);
+
+        Account retSource = entityManager.find(Account.class, source.getId());
+        Account retDestination = entityManager.find(Account.class, destination.getId());
+
+        System.out.println("Same source object references? " + (source == retSource)); // false
+        System.out.println("Same destination object references? " + (destination == retDestination)); // false
+
+        System.out.println("Equal source? " + source.equals(retSource)); // true
+        System.out.println("Equal destination? " + destination.equals(retDestination)); // true
+
+        System.out.println("Source account: " + retSource.getBalance()); // 50.0
+        System.out.println("Destination account: " + retDestination.getBalance()); // 250.0
+
+        System.out.println("\n\n");
     }
 
     public static void executeAToBToCMoneyTransferScenario(final EntityManager entityManager)
@@ -75,8 +89,8 @@ public class Main
         System.out.println("Transferring 50 from Source to Destination via Intermediary.");
         abcMoneyTransferContext.execute();
 
-        System.out.println("Source account: " + source.getBalance());
-        System.out.println("Intermediary account: " + intermediary.getBalance());
-        System.out.println("Destination account: " + destination.getBalance());
+        System.out.println("Source account: " + source.getBalance()); // 50.0
+        System.out.println("Intermediary account: " + intermediary.getBalance()); // 0.0
+        System.out.println("Destination account: " + destination.getBalance()); // 250.0
     }
 }
