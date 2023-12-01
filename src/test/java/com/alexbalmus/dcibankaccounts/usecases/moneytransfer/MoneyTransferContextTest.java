@@ -72,7 +72,8 @@ public class MoneyTransferContextTest
         MoneyTransferContext moneyTransferContext =
             new MoneyTransferContext(entityManager, 50.0, source.getId(), destination.getId());
 
-        try {
+        try
+        {
             moneyTransferContext.execute();
             fail("Exception should have been thrown.");
         }
@@ -91,8 +92,8 @@ public class MoneyTransferContextTest
         MoneyTransferContext moneyTransferContext = new MoneyTransferContext();
         Account_SourceRole sourceAccount = moneyTransferContext.assignSourceRoleTo(account1);
 
-        assertNotSame(account1, sourceAccount);
-        assertNotEquals(sourceAccount, account1);
-        assertEquals(sourceAccount.self(), account1);
+        assertNotSame(account1, sourceAccount);       // obviously - incompatible types
+        assertNotEquals(sourceAccount, account1);     // obviously - incompatible types
+        assertEquals(sourceAccount.self(), account1); // works!
     }
 }
