@@ -1,75 +1,32 @@
 package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
 
 import com.alexbalmus.dcibankaccounts.entities.Account;
-import jakarta.persistence.EntityManager;
 
-public class ABCMoneyTransferContext
+public class ABCMoneyTransferContext<A extends Account>
 {
-    private final MoneyTransferContext moneyTransferContext;
-    private final Account_SourceAndDestinationRole intermediaryAccount;
-    private final EntityManager entityManager;
+    private final MoneyTransferContext<A> moneyTransferContext;
+    private final Account_SourceAndDestinationRole<A> intermediaryAccount;
 
     public ABCMoneyTransferContext(
-        final EntityManager entityManager,
         final Double amount,
-        final Long sourceId,
-        final Long intermediaryId,
-        final Long destinationId)
+        final A sourceAccount,
+        final A intermediaryAccount,
+        final A destinationAccount)
     {
-        this.entityManager = entityManager;
-        this.moneyTransferContext = new MoneyTransferContext(entityManager, amount, sourceId, destinationId);
-        this.intermediaryAccount = assignSourceAndDestinationRoleTo(entityManager.find(Account.class, intermediaryId));
-    }
-
-    ABCMoneyTransferContext()
-    {
-        this.entityManager = null;
-        this.moneyTransferContext = null;
-        this.intermediaryAccount = null;
+        this.moneyTransferContext = new MoneyTransferContext<>(amount, sourceAccount, destinationAccount);
+        this.intermediaryAccount = assignSourceAndDestinationRoleTo(intermediaryAccount);
     }
 
     public void execute()
     {
-        var transaction = entityManager.getTransaction();
-
-        try
-        {
-            transaction.begin();
-
-            moneyTransferContext.getSourceAccount()
-                .transfer(moneyTransferContext.getAmount(), intermediaryAccount);
-
-            intermediaryAccount.transfer(moneyTransferContext.getAmount(),
-                moneyTransferContext.getDestinationAccount());
-
-            transaction.commit();
-        }
-        catch (Exception e)
-        {
-            if (transaction.isActive())
-            {
-                transaction.rollback();
-            }
-            throw e;
-        }
+        moneyTransferContext.getSourceAccount()
+            .transfer(moneyTransferContext.getAmount(), intermediaryAccount);
+        intermediaryAccount.transfer(moneyTransferContext.getAmount(),
+            moneyTransferContext.getDestinationAccount());
     }
 
-    Account_SourceAndDestinationRole assignSourceAndDestinationRoleTo(final Account account)
+    Account_SourceAndDestinationRole<A> assignSourceAndDestinationRoleTo(final A account)
     {
         return () -> account;
     }
-
-//    Old-school alternative to the above:
-//    Account_SourceAndDestinationRole assignSourceAndDestinationRoleTo(final Account account)
-//    {
-//        return new Account_SourceAndDestinationRole()
-//        {
-//            @Override
-//            public Account self()
-//            {
-//                return account;
-//            }
-//        };
-//    }
-
 }

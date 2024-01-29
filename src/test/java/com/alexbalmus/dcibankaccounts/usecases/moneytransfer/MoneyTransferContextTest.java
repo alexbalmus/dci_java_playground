@@ -1,56 +1,23 @@
 package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
 
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotEquals;
-import static org.testng.Assert.assertNotSame;
-import static org.testng.Assert.fail;
-
-import org.mockito.Mock;
-
-import org.testng.annotations.BeforeMethod;
+import com.alexbalmus.dcibankaccounts.entities.Account;
 import org.testng.annotations.Test;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
-
-import com.alexbalmus.dcibankaccounts.entities.Account;
+import static org.testng.Assert.*;
 
 @Test
 public class MoneyTransferContextTest
 {
-    @Mock
-    private EntityManager entityManager;
-
-    @Mock
-    private EntityTransaction entityTransaction;
-
-    @BeforeMethod
-    void setup()
-    {
-        initMocks(this);
-        doNothing().when(entityTransaction).begin();
-        doNothing().when(entityTransaction).commit();
-        when(entityManager.getTransaction()).thenReturn(entityTransaction);
-    }
-
     @Test
     public void testExecute()
     {
-        Account source = new Account(100.0);
+        var source = new Account(100.0);
         source.setId(1L);
-        when(entityManager.find(Account.class, 1L)).thenReturn(source);
 
-        Account destination = new Account(200.0);
+        var destination = new SpecialAccount(200.0);
         destination.setId(2L);
-        when(entityManager.find(Account.class, 2L)).thenReturn(destination);
 
-
-        MoneyTransferContext moneyTransferContext =
-            new MoneyTransferContext(entityManager, 50.0, source.getId(), destination.getId());
+        var moneyTransferContext = new MoneyTransferContext<>(50.0, source, destination);
 
         moneyTransferContext.execute();
 
@@ -61,16 +28,13 @@ public class MoneyTransferContextTest
     @Test
     public void testExecuteInsufficientFunds()
     {
-        Account source = new Account(20.0);
+        var source = new Account(20.0);
         source.setId(1L);
-        when(entityManager.find(Account.class, 1L)).thenReturn(source);
 
-        Account destination = new Account(200.0);
+        var destination = new Account(200.0);
         destination.setId(2L);
-        when(entityManager.find(Account.class, 2L)).thenReturn(destination);
 
-        MoneyTransferContext moneyTransferContext =
-            new MoneyTransferContext(entityManager, 50.0, source.getId(), destination.getId());
+        var moneyTransferContext = new MoneyTransferContext<>(50.0, source, destination);
 
         try
         {
@@ -86,14 +50,22 @@ public class MoneyTransferContextTest
     @Test
     public void testIdentity()
     {
-        Account account1 = new Account(20.0);
+        var account1 = new Account(20.0);
         account1.setId(1L);
 
-        MoneyTransferContext moneyTransferContext = new MoneyTransferContext();
-        Account_SourceRole sourceAccount = moneyTransferContext.assignSourceRoleTo(account1);
+        var moneyTransferContext = new MoneyTransferContext<>(null, null, null);
+        var sourceAccount = moneyTransferContext.assignSourceRoleTo(account1);
 
         assertNotSame(account1, sourceAccount);       // obviously - incompatible types
         assertNotEquals(sourceAccount, account1);     // obviously - incompatible types
         assertEquals(sourceAccount.self(), account1); // works!
+    }
+
+    static class SpecialAccount extends Account
+    {
+        public SpecialAccount(Double balance)
+        {
+            super(balance);
+        }
     }
 }

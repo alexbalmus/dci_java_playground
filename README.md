@@ -1,7 +1,5 @@
-# DCI Java Playground
-Experimenting with the DCI (Data-Context-Interaction) paradigm in Java.
-
-If you are new to DCI, then it's recommended you read the following article first:
+# A DCI-inspired Approach For Java
+If you are new to Data-Context-Interaction, then it's recommended you read the following article first:
 https://fulloo.info/Documents/ArtimaDCI.html
 
 Approach taken for roles in Java: interfaces with default methods 
@@ -19,11 +17,11 @@ https://github.com/alexbalmus/dci_java_playground/blob/main/src/main/java/com/al
 
 An actual role might look something like this:
 
-    interface Account_SourceRole extends Role<Account>
+    interface Account_SourceRole<A extends Account> extends Role<A>
     {
         String INSUFFICIENT_FUNDS = "Insufficient funds.";
     
-        default void transfer(final Double amount, final Account_DestinationRole destination)
+        default void transfer(final Double amount, final Account_DestinationRole<? super A> destination)
         {
             if (self().getBalance() < amount)
             {
@@ -42,19 +40,19 @@ the implementation of the self() method will return the wrapped target object.
 
 Starting with Java 8 this can be done very elegantly behind the scenes using a lambda expression:
 
-    Account_SourceRole assignSourceRoleTo(final Account source)
+    Account_SourceRole<A> assignSourceRoleTo(final A source)
     {
         return () -> source;
     }
 
 The old-school (less pleasant) alternative to the above would look like:
 
-    Account_SourceRole assignSourceRoleTo(final Account source)
+    Account_SourceRole<A> assignSourceRoleTo(final A source)
     {
-        return new Account_SourceRole()
+        return new Account_SourceRole<>()
         {
             @Override
-            public Account self()
+            public A self()
             {
                 return source;
             }
@@ -73,30 +71,15 @@ and then kick-off the use case:
 
     public void execute()
     {
-        var transaction = entityManager.getTransaction();
-
-        try
-        {
-            transaction.begin();
-            sourceAccount.transfer(amount, destinationAccount);
-            transaction.commit();
-        }
-        catch (Exception e)
-        {
-            if (transaction.isActive())
-            {
-                transaction.rollback();
-            }
-            throw e;
-        }
+        sourceAccount.transfer(amount, destinationAccount);
     }
 
 https://github.com/alexbalmus/dci_java_playground/blob/main/src/main/java/com/alexbalmus/dcibankaccounts/usecases/moneytransfer/MoneyTransferContext.java
 
 Assigning multiple roles could be approached by defining a new role interface that extends multiple role interfaces:
-    
-    public interface Account_SourceAndDestinationRole
-        extends Account_SourceRole, Account_DestinationRole
+
+    public interface Account_SourceAndDestinationRole<A extends Account>
+        extends Account_SourceRole<A>, Account_DestinationRole<A>
     {
     }
 
