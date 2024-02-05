@@ -1,45 +1,60 @@
 package com.alexbalmus;
 
 import com.alexbalmus.dcibankaccounts.entities.Account;
+import com.alexbalmus.dcibankaccounts.repositories.AccountsRepository;
 import com.alexbalmus.dcibankaccounts.usecases.moneytransfer.ABCMoneyTransferContext;
 import com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityTransaction;
-import jakarta.persistence.Persistence;
+import jakarta.persistence.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Transactional;
 
 
-public class Main
+@SpringBootApplication
+@EnableTransactionManagement
+@Transactional
+public class Main implements CommandLineRunner
 {
+    @PersistenceContext
+    @SuppressWarnings("unused")
+    private EntityManager entityManager;
+
+    @Autowired
+    AccountsRepository accountsRepository;
+
     public static void main(String[] args)
     {
-        try (
-            final EntityManagerFactory entityManagerFactory =
-                Persistence.createEntityManagerFactory("com.alexbalmus.dcibankaccounts");
-            final EntityManager entityManager = entityManagerFactory.createEntityManager())
-        {
-            System.out.println("\nExecuting A to B money transfer scenario: \n");
-            executeAToBMoneyTransferScenario(entityManager);
-
-            System.out.println("\nExecuting A to B to C money transfer scenario: \n");
-            executeAToBToCMoneyTransferScenario(entityManager);
-        }
+        SpringApplication.run(Main.class, args);
     }
 
-    public static void executeAToBMoneyTransferScenario(final EntityManager entityManager)
+    @Override
+    public void run(String... args)
+    {
+        System.out.println("\nExecuting A to B money transfer scenario: \n");
+        executeAToBMoneyTransferScenario();
+
+        System.out.println("\nExecuting A to B to C money transfer scenario: \n");
+        executeAToBToCMoneyTransferScenario();
+    }
+
+    public void executeAToBMoneyTransferScenario()
     {
         var source = new Account(100.0);
-        entityManager.persist(source);
+        accountsRepository.save(source);
         System.out.println("Source account: " + source.getBalance());
 
         var destination = new Account(200.0);
-        entityManager.persist(destination);
+        accountsRepository.save(destination);
         System.out.println("Destination account: " + destination.getBalance());
 
         var moneyTransferContext = new MoneyTransferContext<>(50.0, source, destination);
 
         System.out.println("Transferring 50 from Source to Destination.");
-        doInTransaction(moneyTransferContext::execute, entityManager.getTransaction());
+        moneyTransferContext.execute();
+        accountsRepository.flush();
 
         System.out.println("Detaching source...");
         entityManager.detach(source);
@@ -47,8 +62,8 @@ public class Main
         System.out.println("Detaching destination...");
         entityManager.detach(destination);
 
-        var retSource = entityManager.find(Account.class, source.getId());
-        var retDestination = entityManager.find(Account.class, destination.getId());
+        var retSource = accountsRepository.findById(source.getId()).orElseThrow();
+        var retDestination = accountsRepository.findById(destination.getId()).orElseThrow();
 
         System.out.println("Same source object references? " + (source == retSource)); // false
         System.out.println("Same destination object references? " + (destination == retDestination)); // false
@@ -62,45 +77,27 @@ public class Main
         System.out.println("\n\n");
     }
 
-    public static void executeAToBToCMoneyTransferScenario(final EntityManager entityManager)
+    public void executeAToBToCMoneyTransferScenario()
     {
         var source = new Account(100.0);
-        entityManager.persist(source);
+        accountsRepository.save(source);
         System.out.println("Source account: " + source.getBalance());
 
         var intermediary = new Account(0.0);
-        entityManager.persist(intermediary);
+        accountsRepository.save(intermediary);
         System.out.println("Intermediary account: " + intermediary.getBalance());
 
         var destination = new Account(200.0);
-        entityManager.persist(destination);
+        accountsRepository.save(destination);
         System.out.println("Destination account: " + destination.getBalance());
 
         var abcMoneyTransferContext = new ABCMoneyTransferContext<>(50.0, source, intermediary, destination);
 
         System.out.println("Transferring 50 from Source to Destination via Intermediary.");
-        doInTransaction(abcMoneyTransferContext::execute, entityManager.getTransaction());
+        abcMoneyTransferContext.execute();
 
         System.out.println("Source account: " + source.getBalance()); // 50.0
         System.out.println("Intermediary account: " + intermediary.getBalance()); // 0.0
         System.out.println("Destination account: " + destination.getBalance()); // 250.0
-    }
-
-    private static void doInTransaction(Runnable task, EntityTransaction transaction)
-    {
-        try
-        {
-            transaction.begin();
-            task.run();
-            transaction.commit();
-        }
-        catch (Exception e)
-        {
-            if (transaction.isActive())
-            {
-                transaction.rollback();
-            }
-            throw e;
-        }
     }
 }
