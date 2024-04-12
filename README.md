@@ -2,19 +2,6 @@
 If you are new to Data-Context-Interaction, then it's recommended you read the following article first:
 https://fulloo.info/Documents/ArtimaDCI.html
 
-DCI is a valuable (but not very well known) use case oriented design & architecture approach 
-and OOP paradigm shift. Due to its particular characteristics, it's rather difficult to implement in a strongly typed 
-programming language like Java. Two reference examples have been provided by DCI's authors, one using a library called 
-Qi4J and the other using Java's reflection API: https://fulloo.info/Examples/JavaExamples/ 
-
-In my case, I'm going for some tradeoffs: this is not "pure" DCI, but still aiming to be as close as possible to 
-the valuable features DCI brings.
-
-Prior considerations:
-- Pure Java for roles/role-injection - no third party libraries / frameworks, as they might not be accepted in certain projects
-- No reflection - this also might not be accepted in some projects, and Java's reflection API is a pain to work with
-- Able to integrate in a mature/legacy code base, i.e., not requiring any changes to existing entities.
-
 Approach taken for roles in Java: interfaces with default methods 
 (one of the suggestions from the Wikipedia article listed in the "More info" section below). 
 
@@ -99,6 +86,12 @@ Assigning multiple roles could be approached by defining a new role interface th
 Inheritance is usually discouraged in DCI, but here I'm aiming for a minimal use - just to combine multiple roles.
 
 https://github.com/alexbalmus/dci_java_playground/blob/main/src/main/java/com/alexbalmus/dcibankaccounts/usecases/moneytransfer/Account_SourceAndDestinationRole.java
+
+
+I've also attempted an example of nested contexts:
+
+https://github.com/alexbalmus/dci_java_playground/blob/main/src/main/java/com/alexbalmus/dcibankaccounts/usecases/moneytransfer/ABCMoneyTransferContext.java
+
 
 
 
