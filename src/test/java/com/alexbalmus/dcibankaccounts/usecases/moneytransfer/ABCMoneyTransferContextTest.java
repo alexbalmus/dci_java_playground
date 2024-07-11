@@ -9,7 +9,7 @@ import static org.testng.Assert.assertEquals;
 public class ABCMoneyTransferContextTest
 {
     @Test
-    public void testExecute()
+    public void testExecuteSourceToDestinationTransfer()
     {
         var source = new Account(100.0);
         source.setId(1L);
@@ -20,9 +20,9 @@ public class ABCMoneyTransferContextTest
         var destination = new Account(200.0);
         destination.setId(3L);
 
-        var abcMoneyTransferContext = new ABCMoneyTransferContext<>(50.0, source, intermediary, destination);
+        var abcMoneyTransferContext = new MoneyTransferContext<>(50.0, source, intermediary, destination);
 
-        abcMoneyTransferContext.execute();
+        abcMoneyTransferContext.executeSourceToIntermediaryToDestinationTransfer();
 
         assertEquals(source.getBalance(), 50.0);
         assertEquals(intermediary.getBalance(), 0.0);
@@ -35,7 +35,7 @@ public class ABCMoneyTransferContextTest
         var account1 = new Account(20.0);
         account1.setId(1L);
 
-        var abcMoneyTransferContext = new ABCMoneyTransferContext<>(null, null, null, null);
+        var abcMoneyTransferContext = new MoneyTransferContext<>(null, null, null, null);
         var bidirectionalAccount = abcMoneyTransferContext.assignSourceAndDestinationRoleTo(account1);
 
         var moneyTransferContext = new MoneyTransferContext<>(null, null, null);

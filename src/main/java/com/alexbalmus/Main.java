@@ -1,7 +1,6 @@
 package com.alexbalmus;
 
 import com.alexbalmus.dcibankaccounts.entities.Account;
-import com.alexbalmus.dcibankaccounts.usecases.moneytransfer.ABCMoneyTransferContext;
 import com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -39,7 +38,7 @@ public class Main
         var moneyTransferContext = new MoneyTransferContext<>(50.0, source, destination);
 
         System.out.println("Transferring 50 from Source to Destination.");
-        doInTransaction(moneyTransferContext::execute, entityManager.getTransaction());
+        doInTransaction(moneyTransferContext::executeSourceToDestinationTransfer, entityManager.getTransaction());
 
         System.out.println("Detaching source...");
         entityManager.detach(source);
@@ -76,10 +75,11 @@ public class Main
         entityManager.persist(destination);
         System.out.println("Destination account: " + destination.getBalance());
 
-        var abcMoneyTransferContext = new ABCMoneyTransferContext<>(50.0, source, intermediary, destination);
+        var abcMoneyTransferContext = new MoneyTransferContext<>(50.0, source, intermediary, destination);
 
         System.out.println("Transferring 50 from Source to Destination via Intermediary.");
-        doInTransaction(abcMoneyTransferContext::execute, entityManager.getTransaction());
+        doInTransaction(abcMoneyTransferContext::executeSourceToIntermediaryToDestinationTransfer,
+            entityManager.getTransaction());
 
         System.out.println("Source account: " + source.getBalance()); // 50.0
         System.out.println("Intermediary account: " + intermediary.getBalance()); // 0.0

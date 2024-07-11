@@ -9,7 +9,7 @@ import static org.testng.Assert.*;
 public class MoneyTransferContextTest
 {
     @Test
-    public void testExecute()
+    public void testExecuteSourceToDestinationTransfer()
     {
         var source = new Account(100.0);
         source.setId(1L);
@@ -19,7 +19,7 @@ public class MoneyTransferContextTest
 
         var moneyTransferContext = new MoneyTransferContext<>(50.0, source, destination);
 
-        moneyTransferContext.execute();
+        moneyTransferContext.executeSourceToDestinationTransfer();
 
         assertEquals(source.getBalance(), 50.0);
         assertEquals(destination.getBalance(), 250.0);
@@ -38,12 +38,12 @@ public class MoneyTransferContextTest
 
         try
         {
-            moneyTransferContext.execute();
+            moneyTransferContext.executeSourceToDestinationTransfer();
             fail("Exception should have been thrown.");
         }
         catch (RuntimeException e)
         {
-            assertEquals(e.getMessage(), Account_SourceRole.INSUFFICIENT_FUNDS);
+            assertEquals(e.getMessage(), MoneyTransferContext.Account_SourceRole.INSUFFICIENT_FUNDS);
         }
     }
 
