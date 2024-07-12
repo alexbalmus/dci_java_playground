@@ -10,26 +10,28 @@ public class MoneyTransferContext<A extends Account>
 
     private final Account_SourceRole<A> sourceAccount;
     private final Account_DestinationRole<A> destinationAccount;
-    private Account_SourceAndDestinationRole<A> intermediaryAccount;
+    private final Account_SourceAndDestinationRole<A> intermediaryAccount;
 
     public MoneyTransferContext(
         final Double amount,
         final A sourceAccount,
         final A destinationAccount)
     {
-        this.amount = amount;
-        this.sourceAccount = assignSourceRoleTo(sourceAccount);
-        this.destinationAccount = assignDestinationRoleTo(destinationAccount);
+        this(amount, sourceAccount, destinationAccount, null);
     }
 
     public MoneyTransferContext(
         final Double amount,
         final A sourceAccount,
-        final A intermediaryAccount,
-        final A destinationAccount)
+        final A destinationAccount,
+        final A intermediaryAccount)
     {
-        this(amount, sourceAccount, destinationAccount);
-        this.intermediaryAccount = assignSourceAndDestinationRoleTo(intermediaryAccount);
+        this.amount = amount;
+        this.sourceAccount = assignSourceRoleTo(sourceAccount);
+        this.destinationAccount = assignDestinationRoleTo(destinationAccount);
+        this.intermediaryAccount = intermediaryAccount != null
+            ? assignSourceAndDestinationRoleTo(intermediaryAccount)
+            : null;
     }
 
     public void executeSourceToDestinationTransfer()
