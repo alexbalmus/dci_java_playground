@@ -20,7 +20,7 @@ public class ABCMoneyTransferContextTest
         var destination = new Account(200.0);
         destination.setId(3L);
 
-        var abcMoneyTransferContext = new MoneyTransferContext<>(50.0, source, intermediary, destination);
+        var abcMoneyTransferContext = new MoneyTransferContext<>(50.0, source, destination, intermediary);
 
         abcMoneyTransferContext.executeSourceToIntermediaryToDestinationTransfer();
 
