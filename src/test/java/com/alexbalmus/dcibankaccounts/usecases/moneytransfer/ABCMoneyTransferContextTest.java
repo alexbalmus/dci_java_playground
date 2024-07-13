@@ -28,21 +28,4 @@ public class ABCMoneyTransferContextTest
         assertEquals(intermediary.getBalance(), 0.0);
         assertEquals(destination.getBalance(), 250.0);
     }
-
-    @Test
-    public void testIdentity()
-    {
-        var account1 = new Account(20.0);
-        account1.setId(1L);
-
-        var abcMoneyTransferContext = new MoneyTransferContext<>(null, null, null, null);
-        var bidirectionalAccount = abcMoneyTransferContext.assignSourceAndDestinationRoleTo(account1);
-
-        var moneyTransferContext = new MoneyTransferContext<>(null, null, null);
-        var sourceRef = moneyTransferContext.assignSourceRoleTo(account1);
-        var destRef = moneyTransferContext.assignDestinationRoleTo(account1);
-
-        assertEquals(bidirectionalAccount.self(), sourceRef.self());
-        assertEquals(bidirectionalAccount.self(), destRef.self());
-    }
 }

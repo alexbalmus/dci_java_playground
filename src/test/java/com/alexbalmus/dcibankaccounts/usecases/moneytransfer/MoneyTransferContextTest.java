@@ -43,22 +43,8 @@ public class MoneyTransferContextTest
         }
         catch (RuntimeException e)
         {
-            assertEquals(e.getMessage(), MoneyTransferContext.Account_SourceRole.INSUFFICIENT_FUNDS);
+            assertEquals(e.getMessage(), MoneyTransferContext.INSUFFICIENT_FUNDS);
         }
-    }
-
-    @Test
-    public void testIdentity()
-    {
-        var account1 = new Account(20.0);
-        account1.setId(1L);
-
-        var moneyTransferContext = new MoneyTransferContext<>(null, null, null);
-        var sourceAccount = moneyTransferContext.assignSourceRoleTo(account1);
-
-        assertNotSame(account1, sourceAccount);       // obviously - incompatible types
-        assertNotEquals(sourceAccount, account1);     // obviously - incompatible types
-        assertEquals(sourceAccount.self(), account1); // works!
     }
 
     static class SpecialAccount extends Account

@@ -1,16 +1,17 @@
 package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
 
 import com.alexbalmus.dcibankaccounts.entities.Account;
-import com.alexbalmus.dcibankaccounts.usecases.Role;
 import org.apache.commons.lang3.Validate;
 
 public class MoneyTransferContext<A extends Account>
 {
+    public static final String INSUFFICIENT_FUNDS = "Insufficient funds.";
+
     private final Double amount;
 
-    private final Account_SourceRole<A> sourceAccount;
-    private final Account_DestinationRole<A> destinationAccount;
-    private final Account_SourceAndDestinationRole<A> intermediaryAccount;
+    private final A sourceAccount;
+    private final A destinationAccount;
+    private final A intermediaryAccount;
 
     public MoneyTransferContext(
         final Double amount,
@@ -27,72 +28,38 @@ public class MoneyTransferContext<A extends Account>
         final A intermediaryAccount)
     {
         this.amount = amount;
-        this.sourceAccount = assignSourceRoleTo(sourceAccount);
-        this.destinationAccount = assignDestinationRoleTo(destinationAccount);
-        this.intermediaryAccount = intermediaryAccount != null
-            ? assignSourceAndDestinationRoleTo(intermediaryAccount)
-            : null;
+        this.sourceAccount = sourceAccount;
+        this.destinationAccount = destinationAccount;
+        this.intermediaryAccount = intermediaryAccount;
     }
 
     public void executeSourceToDestinationTransfer()
     {
-        sourceAccount.transfer(amount, destinationAccount);
+        source_transferTo(sourceAccount, destinationAccount, amount);
     }
 
     public void executeSourceToIntermediaryToDestinationTransfer()
     {
         Validate.notNull(intermediaryAccount, "intermediaryAccount must not be null.");
-        sourceAccount.transfer(amount, intermediaryAccount);
-        intermediaryAccount.transfer(amount, destinationAccount);
+        source_transferTo(sourceAccount, intermediaryAccount, amount);
+        source_transferTo(intermediaryAccount, destinationAccount, amount);
     }
 
-    // Role assignments:
-
-    Account_SourceRole<A> assignSourceRoleTo(final A source)
-    {
-        return () -> source;
-    }
-
-    Account_DestinationRole<A> assignDestinationRoleTo(final A destination)
-    {
-        return () -> destination;
-    }
-
-    Account_SourceAndDestinationRole<A> assignSourceAndDestinationRoleTo(final A account)
-    {
-        return () -> account;
-    }
 
     // Account roles:
 
-    @SuppressWarnings("java:S114")
-    interface Account_SourceRole<A extends Account> extends Role<A>
+    void source_transferTo(final A self, A destination, final Double amount)
     {
-        String INSUFFICIENT_FUNDS = "Insufficient funds.";
-
-        default void transfer(final Double amount, final Account_DestinationRole<? super A> destination)
+        if (self.getBalance() < amount)
         {
-            if (self().getBalance() < amount)
-            {
-                throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
-            }
-            self().decreaseBalanceBy(amount);
-            destination.receive(amount);
+            throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
         }
+        self.decreaseBalanceBy(amount);
+        destination_receive(destination, amount);
     }
 
-    @SuppressWarnings("java:S114")
-    interface Account_DestinationRole<A extends Account> extends Role<A>
+    void destination_receive(final A self, final Double amount)
     {
-        default void receive(final Double amount)
-        {
-            self().increaseBalanceBy(amount);
-        }
-    }
-
-    @SuppressWarnings("java:S114")
-    public interface Account_SourceAndDestinationRole<A extends Account>
-        extends Account_SourceRole<A>, Account_DestinationRole<A>
-    {
+        self.increaseBalanceBy(amount);
     }
 }

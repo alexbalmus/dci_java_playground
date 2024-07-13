@@ -55,20 +55,11 @@ public class Main implements CommandLineRunner
         moneyTransferContext.executeSourceToDestinationTransfer();
         accountsRepository.flush();
 
-        System.out.println("Detaching source...");
         entityManager.detach(source);
-
-        System.out.println("Detaching destination...");
         entityManager.detach(destination);
 
         var retSource = accountsRepository.findById(source.getId()).orElseThrow();
         var retDestination = accountsRepository.findById(destination.getId()).orElseThrow();
-
-        System.out.println("Same source object references? " + (source == retSource)); // false
-        System.out.println("Same destination object references? " + (destination == retDestination)); // false
-
-        System.out.println("Equal source? " + source.equals(retSource)); // true
-        System.out.println("Equal destination? " + destination.equals(retDestination)); // true
 
         System.out.println("Source account: " + retSource.getBalance()); // 50.0
         System.out.println("Destination account: " + retDestination.getBalance()); // 250.0
