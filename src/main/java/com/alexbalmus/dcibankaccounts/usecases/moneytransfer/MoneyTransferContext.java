@@ -48,6 +48,7 @@ public class MoneyTransferContext<A extends Account>
 
     // Account roles:
 
+    // equivalent of: source.transferTo(destination, amount)
     void source_transferTo(final A self, A destination, final Double amount)
     {
         if (self.getBalance() < amount)
@@ -58,6 +59,7 @@ public class MoneyTransferContext<A extends Account>
         destination_receive(destination, amount);
     }
 
+    // equivalent of: destination.receive(amount)
     void destination_receive(final A self, final Double amount)
     {
         self.increaseBalanceBy(amount);
