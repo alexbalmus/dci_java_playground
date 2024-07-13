@@ -4,6 +4,8 @@ https://fulloo.info/Documents/ArtimaDCI.html
 
 Please note that given Java's dynamic limitations and the considerations mentioned below, this implementation is a "wrapper approach" and therefore is not true DCI: https://fulloo.info/doku.php?id=why_isn_t_it_dci_if_you_use_a_wrapper_object_to_represent_the_role
 
+Also, checkout another approach I've tried: https://github.com/alexbalmus/dci_java_playground/tree/context_with_role_methods 
+
 DCI is a valuable (but not very well known) use case oriented design & architecture approach 
 and OOP paradigm shift. Due to its particular characteristics, it's rather difficult to implement in a strongly typed 
 programming language like Java. Two reference examples have been provided by DCI's authors, one using a library called 
