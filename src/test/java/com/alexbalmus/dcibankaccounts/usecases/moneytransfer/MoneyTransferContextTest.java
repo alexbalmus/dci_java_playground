@@ -54,11 +54,9 @@ public class MoneyTransferContextTest
         account1.setId(1L);
 
         var moneyTransferContext = new MoneyTransferContext<>(null, null, null);
-        var sourceAccount = moneyTransferContext.assignSourceRoleTo(account1);
+        var sourceAccount = moneyTransferContext.wrapWithSourceRole(account1);
 
-        assertNotSame(account1, sourceAccount);       // obviously - incompatible types
-        assertNotEquals(sourceAccount, account1);     // obviously - incompatible types
-        assertEquals(sourceAccount.self(), account1); // works!
+        assertEquals(sourceAccount.rolePlayer(), account1);
     }
 
     static class SpecialAccount extends Account

@@ -1,7 +1,7 @@
 package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
 
 import com.alexbalmus.dcibankaccounts.entities.Account;
-import com.alexbalmus.dcibankaccounts.usecases.Role;
+import com.alexbalmus.dcibankaccounts.usecases.RoleWrapper;
 import org.apache.commons.lang3.Validate;
 
 public class MoneyTransferContext<A extends Account>
@@ -27,10 +27,10 @@ public class MoneyTransferContext<A extends Account>
         final A intermediaryAccount)
     {
         this.amount = amount;
-        this.sourceAccount = assignSourceRoleTo(sourceAccount);
-        this.destinationAccount = assignDestinationRoleTo(destinationAccount);
+        this.sourceAccount = wrapWithSourceRole(sourceAccount);
+        this.destinationAccount = wrapWithDestinationRole(destinationAccount);
         this.intermediaryAccount = intermediaryAccount != null
-            ? assignSourceAndDestinationRoleTo(intermediaryAccount)
+            ? wrapWithSourceAndDestinationRole(intermediaryAccount)
             : null;
     }
 
@@ -48,17 +48,17 @@ public class MoneyTransferContext<A extends Account>
 
     // Role assignments:
 
-    Account_SourceRole<A> assignSourceRoleTo(final A source)
+    Account_SourceRole<A> wrapWithSourceRole(final A source)
     {
         return () -> source;
     }
 
-    Account_DestinationRole<A> assignDestinationRoleTo(final A destination)
+    Account_DestinationRole<A> wrapWithDestinationRole(final A destination)
     {
         return () -> destination;
     }
 
-    Account_SourceAndDestinationRole<A> assignSourceAndDestinationRoleTo(final A account)
+    Account_SourceAndDestinationRole<A> wrapWithSourceAndDestinationRole(final A account)
     {
         return () -> account;
     }
@@ -66,27 +66,27 @@ public class MoneyTransferContext<A extends Account>
     // Account roles:
 
     @SuppressWarnings("java:S114")
-    interface Account_SourceRole<A extends Account> extends Role<A>
+    interface Account_SourceRole<A extends Account> extends RoleWrapper<A>
     {
         String INSUFFICIENT_FUNDS = "Insufficient funds.";
 
         default void transfer(final Double amount, final Account_DestinationRole<? super A> destination)
         {
-            if (self().getBalance() < amount)
+            if (rolePlayer().getBalance() < amount)
             {
                 throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
             }
-            self().decreaseBalanceBy(amount);
+            rolePlayer().decreaseBalanceBy(amount);
             destination.receive(amount);
         }
     }
 
     @SuppressWarnings("java:S114")
-    interface Account_DestinationRole<A extends Account> extends Role<A>
+    interface Account_DestinationRole<A extends Account> extends RoleWrapper<A>
     {
         default void receive(final Double amount)
         {
-            self().increaseBalanceBy(amount);
+            rolePlayer().increaseBalanceBy(amount);
         }
     }
 
