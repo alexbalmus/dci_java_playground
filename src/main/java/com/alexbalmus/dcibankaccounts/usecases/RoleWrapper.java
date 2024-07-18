@@ -1,6 +1,6 @@
 package com.alexbalmus.dcibankaccounts.usecases;
 
-public interface Role<T>
+public interface RoleWrapper<T>
 {
-    T self();
+    T rolePlayer();
 }

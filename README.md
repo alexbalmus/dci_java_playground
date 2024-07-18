@@ -25,11 +25,11 @@ Approach taken for roles in Java: interfaces with default methods
 We start out with a generic functional/SAM (Single Abstract Method) interface called Role having a method self() 
 which would return a reference to the target (role playing) object (the equivalent of "this"):
 
-com.alexbalmus.dcibankaccounts.usecases.Role:
+com.alexbalmus.dcibankaccounts.usecases.RoleWrapper:
 
-    public interface Role<T>
+    public interface RoleWrapper<T>
     {
-        T self();
+        T rolePlayer();
     }
 
 An actual role might look something like this:
@@ -42,34 +42,34 @@ com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext.Accou
     
         default void transfer(final Double amount, final Account_DestinationRole<? super A> destination)
         {
-            if (self().getBalance() < amount)
+            if (rolePlayer().getBalance() < amount)
             {
                 throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
             }
-            self().decreaseBalanceBy(amount);
+            rolePlayer().decreaseBalanceBy(amount);
             destination.receive(amount);
         }
     }
 
-Now, for the actual "role injection" that will be done inside a context, this will be simulated by means of an 
+Now, for the "role injection" (actually the wrapping) performed inside a context, this will be done by means of an 
 anonymous inner class that implements a role interface and who's instance will wrap the target object; 
-the implementation of the self() method will return the wrapped target object.
+the implementation of the rolePlayer() method will return the wrapped target object.
 
 Starting with Java 8 this can be done very elegantly behind the scenes using a lambda expression:
 
-    Account_SourceRole<A> assignSourceRoleTo(final A source)
+    Account_SourceRole<A> wrapWithSourceRole(final A source)
     {
         return () -> source;
     }
 
 The old-school (less pleasant) alternative to the above would look like:
 
-    Account_SourceRole<A> assignSourceRoleTo(final A source)
+    Account_SourceRole<A> wrapWithSourceRole(final A source)
     {
         return new Account_SourceRole<>()
         {
             @Override
-            public A self()
+            public A rolePlayer()
             {
                 return source;
             }
@@ -81,8 +81,8 @@ and then kick-off the use case:
 
     ...
 
-    this.sourceAccount = assignSourceRoleTo(source);
-    this.destinationAccount = assignDestinationRoleTo(destination);
+    this.sourceAccount = wrapWithSourceRole(source);
+    this.destinationAccount = wrapWithDestinationRole(destination);
     
     ...
 

@@ -36,13 +36,13 @@ public class ABCMoneyTransferContextTest
         account1.setId(1L);
 
         var abcMoneyTransferContext = new MoneyTransferContext<>(null, null, null, null);
-        var bidirectionalAccount = abcMoneyTransferContext.assignSourceAndDestinationRoleTo(account1);
+        var bidirectionalAccount = abcMoneyTransferContext.wrapWithSourceAndDestinationRole(account1);
 
         var moneyTransferContext = new MoneyTransferContext<>(null, null, null);
-        var sourceRef = moneyTransferContext.assignSourceRoleTo(account1);
-        var destRef = moneyTransferContext.assignDestinationRoleTo(account1);
+        var sourceRef = moneyTransferContext.wrapWithSourceRole(account1);
+        var destRef = moneyTransferContext.wrapWithDestinationRole(account1);
 
-        assertEquals(bidirectionalAccount.self(), sourceRef.self());
-        assertEquals(bidirectionalAccount.self(), destRef.self());
+        assertEquals(bidirectionalAccount.rolePlayer(), sourceRef.rolePlayer());
+        assertEquals(bidirectionalAccount.rolePlayer(), destRef.rolePlayer());
     }
 }
