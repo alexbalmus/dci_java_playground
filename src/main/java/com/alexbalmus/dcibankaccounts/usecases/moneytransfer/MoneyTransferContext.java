@@ -3,6 +3,8 @@ package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
 import com.alexbalmus.dcibankaccounts.entities.Account;
 import org.apache.commons.lang3.Validate;
 
+import java.util.function.Consumer;
+
 public class MoneyTransferContext<A extends Account>
 {
     public static final String INSUFFICIENT_FUNDS = "Insufficient funds.";
@@ -35,33 +37,81 @@ public class MoneyTransferContext<A extends Account>
 
     public void executeSourceToDestinationTransfer()
     {
-        source_transferTo(sourceAccount, destinationAccount, amount);
+        // Role methods:
+
+        // Destination account:
+        Consumer<Double> destinationAccount_receive = (amount) ->
+        {
+            destinationAccount.increaseBalanceBy(amount);
+        };
+
+        // Source account:
+        Consumer<Double> sourceAccount_transferToDestination = (amount) ->
+        {
+            if (sourceAccount.getBalance() < amount)
+            {
+                throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
+            }
+            sourceAccount.decreaseBalanceBy(amount);
+
+            // equivalent of: destinationAccount.receive(amount):
+            destinationAccount_receive.accept(amount);
+        };
+
+        // Interaction:
+
+        // equivalent of: sourceAccount.transferToDestination(amount)
+        sourceAccount_transferToDestination.accept(amount);
     }
 
     public void executeSourceToIntermediaryToDestinationTransfer()
     {
         Validate.notNull(intermediaryAccount, "intermediaryAccount must not be null.");
-        source_transferTo(sourceAccount, intermediaryAccount, amount);
-        source_transferTo(intermediaryAccount, destinationAccount, amount);
-    }
 
+        // Role methods:
 
-    // Account roles:
-
-    // equivalent of: source.transferTo(destination, amount)
-    void source_transferTo(final A self, A destination, final Double amount)
-    {
-        if (self.getBalance() < amount)
+        // Destination account:
+        Consumer<Double> destinationAccount_receive = (amount) ->
         {
-            throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
-        }
-        self.decreaseBalanceBy(amount);
-        destination_receive(destination, amount);
-    }
+            destinationAccount.increaseBalanceBy(amount);
+        };
 
-    // equivalent of: destination.receive(amount)
-    void destination_receive(final A self, final Double amount)
-    {
-        self.increaseBalanceBy(amount);
+        // Intermediary account:
+        Consumer<Double> intermediaryAccount_receive = (amount) ->
+        {
+            intermediaryAccount.increaseBalanceBy(amount);
+        };
+        Consumer<Double> intermediaryAccount_transferToDestination = (amount) ->
+        {
+            if (intermediaryAccount.getBalance() < amount)
+            {
+                throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
+            }
+            intermediaryAccount.decreaseBalanceBy(amount);
+
+            // equivalent of: destinationAccount.receive(amount):
+            destinationAccount_receive.accept(amount);
+        };
+
+        // Source account:
+        Consumer<Double> sourceAccount_transferToIntermediary = (amount) ->
+        {
+            if (sourceAccount.getBalance() < amount)
+            {
+                throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
+            }
+            sourceAccount.decreaseBalanceBy(amount);
+
+            // equivalent of: intermediaryAccount.receive(amount):
+            intermediaryAccount_receive.accept(amount);
+        };
+
+        // Interaction:
+
+        // equivalent of: sourceAccount.transferToIntermediary(amount)
+        sourceAccount_transferToIntermediary.accept(amount);
+
+        // equivalent of: intermediaryAccount.transferToDestination(amount):
+        intermediaryAccount_transferToDestination.accept(amount);
     }
 }

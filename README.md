@@ -19,25 +19,26 @@ Prior considerations:
 - No reflection - this also might not be accepted in some projects, and Java's reflection API is a pain to work with
 - Able to integrate in a mature/legacy code base, i.e., not requiring any changes to existing entities.
 
-Approach taken for roles in Java: context methods with a naming convention.
-This will be similar to doing OOP in a language without OOP support like C.
+Approach taken for role methods in Java: variables of type functional interface Consumer (simulating functions with single argument and void return type), with a naming convention.
 
 Inspired from https://blog.encodeart.dev/series/dci-typescript-tutorial
 
-An actual role might look something like this (first parameter is named "self" - the equivalent of "this"):
+An actual role might look something like this:
 
-com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext.source_transferTo:
+com/alexbalmus/dcibankaccounts/usecases/moneytransfer/MoneyTransferContext.java:49:
 
-    // equivalent of: source.transferTo(destination, amount)
-    void source_transferTo(final A self, A destination, final Double amount)
+    // Source account:
+    Consumer<Double> sourceAccount_transferToDestination = (amount) ->
     {
-        if (self.getBalance() < amount)
+        if (sourceAccount.getBalance() < amount)
         {
             throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
         }
-        self.decreaseBalanceBy(amount);
-        destination_receive(destination, amount);
-    }
+        sourceAccount.decreaseBalanceBy(amount);
+
+        // equivalent of: destinationAccount.receive(amount):
+        destinationAccount_receive.accept(amount);
+    };
 
 The context object would select the objects participating in the use case and call the necessary role methods:
 
@@ -45,7 +46,31 @@ com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext.execu
 
     public void executeSourceToDestinationTransfer()
     {
-        source_transferTo(sourceAccount, destinationAccount, amount);
+        // Role methods:
+
+        // Destination account:
+        Consumer<Double> destinationAccount_receive = (amount) ->
+        {
+            destinationAccount.increaseBalanceBy(amount);
+        };
+
+        // Source account:
+        Consumer<Double> sourceAccount_transferToDestination = (amount) ->
+        {
+            if (sourceAccount.getBalance() < amount)
+            {
+                throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
+            }
+            sourceAccount.decreaseBalanceBy(amount);
+
+            // equivalent of: destinationAccount.receive(amount):
+            destinationAccount_receive.accept(amount);
+        };
+
+        // Interaction:
+
+        // equivalent of: sourceAccount.transferToDestination(amount)
+        sourceAccount_transferToDestination.accept(amount);
     }
 
 
