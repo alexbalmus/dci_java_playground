@@ -2,7 +2,7 @@ package com.alexbalmus;
 
 import com.alexbalmus.dcibankaccounts.entities.Account;
 import com.alexbalmus.dcibankaccounts.repositories.AccountsRepository;
-import com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext;
+import com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferService;
 import jakarta.persistence.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -23,6 +23,9 @@ public class Main implements CommandLineRunner
 
     @Autowired
     AccountsRepository accountsRepository;
+
+    @Autowired
+    MoneyTransferService<Account> moneyTransferService;
 
     public static void main(String[] args)
     {
@@ -49,10 +52,8 @@ public class Main implements CommandLineRunner
         accountsRepository.save(destination);
         System.out.println("Destination account: " + destination.getBalance());
 
-        var moneyTransferContext = new MoneyTransferContext<>(50.0, source, destination);
-
         System.out.println("Transferring 50 from Source to Destination.");
-        moneyTransferContext.executeSourceToDestinationTransfer();
+        moneyTransferService.executeSourceToDestinationTransfer(50.0, source, destination);
         accountsRepository.flush();
 
         entityManager.detach(source);
@@ -81,10 +82,9 @@ public class Main implements CommandLineRunner
         accountsRepository.save(destination);
         System.out.println("Destination account: " + destination.getBalance());
 
-        var abcMoneyTransferContext = new MoneyTransferContext<>(50.0, source, destination, intermediary);
-
         System.out.println("Transferring 50 from Source to Destination via Intermediary.");
-        abcMoneyTransferContext.executeSourceToIntermediaryToDestinationTransfer();
+        moneyTransferService.executeSourceToIntermediaryToDestinationTransfer(
+            50.0, source, destination, intermediary);
 
         System.out.println("Source account: " + source.getBalance()); // 50.0
         System.out.println("Intermediary account: " + intermediary.getBalance()); // 0.0

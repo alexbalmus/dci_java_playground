@@ -4,6 +4,9 @@ https://fulloo.info/Documents/ArtimaDCI.html
 
 Please note that given Java's dynamic limitations and the considerations mentioned below, this is not true DCI.
 
+Also note that this is a variation of https://github.com/alexbalmus/dci_java_playground/tree/context_with_role_methods 
+the difference being that instead of a stateful context object there is a stateless service.
+
 Also, checkout another approach I've tried: https://github.com/alexbalmus/dci_java_playground/tree/wrapper_approach 
 
 DCI is a valuable (but not very well known) use case oriented design & architecture approach 
@@ -25,7 +28,7 @@ Inspired from https://blog.encodeart.dev/series/dci-typescript-tutorial
 
 An actual role might look something like this:
 
-com/alexbalmus/dcibankaccounts/usecases/moneytransfer/MoneyTransferContext.java:49:
+com/alexbalmus/dcibankaccounts/usecases/moneytransfer/MoneyTransferService.java:27:
 
     // Source account:
     Consumer<Double> sourceAccount_transferToDestinationAccount = (amount) ->
@@ -42,9 +45,12 @@ com/alexbalmus/dcibankaccounts/usecases/moneytransfer/MoneyTransferContext.java:
 
 The context object would select the objects participating in the use case and call the necessary role methods:
 
-com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext.executeSourceToDestinationTransfer:
+com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferService.executeSourceToDestinationTransfer:
 
-    public void executeSourceToDestinationTransfer()
+    public void executeSourceToDestinationTransfer(
+        final Double amountToTransfer,
+        final A sourceAccount,
+        final A destinationAccount)
     {
         // Role methods:
 
@@ -70,7 +76,7 @@ com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext.execu
         // Interaction:
 
         // equivalent of: sourceAccount.transferToDestination(amount)
-        sourceAccount_transferToDestinationAccount.accept(amount);
+        sourceAccount_transferToDestinationAccount.accept(amountToTransfer);
     }
 
 

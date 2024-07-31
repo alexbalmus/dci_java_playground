@@ -1,41 +1,19 @@
 package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
 
 import com.alexbalmus.dcibankaccounts.entities.Account;
-import org.apache.commons.lang3.Validate;
+import org.springframework.stereotype.Service;
 
 import java.util.function.Consumer;
 
-public class MoneyTransferContext<A extends Account>
+@Service
+public class MoneyTransferService<A extends Account>
 {
     public static final String INSUFFICIENT_FUNDS = "Insufficient funds.";
 
-    private final Double amount;
-
-    private final A sourceAccount;
-    private final A destinationAccount;
-    private final A intermediaryAccount;
-
-    public MoneyTransferContext(
-        final Double amount,
+    public void executeSourceToDestinationTransfer(
+        final Double amountToTransfer,
         final A sourceAccount,
         final A destinationAccount)
-    {
-        this(amount, sourceAccount, destinationAccount, null);
-    }
-
-    public MoneyTransferContext(
-        final Double amount,
-        final A sourceAccount,
-        final A destinationAccount,
-        final A intermediaryAccount)
-    {
-        this.amount = amount;
-        this.sourceAccount = sourceAccount;
-        this.destinationAccount = destinationAccount;
-        this.intermediaryAccount = intermediaryAccount;
-    }
-
-    public void executeSourceToDestinationTransfer()
     {
         // Role methods:
 
@@ -61,13 +39,16 @@ public class MoneyTransferContext<A extends Account>
         // Interaction:
 
         // equivalent of: sourceAccount.transferToDestination(amount)
-        sourceAccount_transferToDestinationAccount.accept(amount);
+        sourceAccount_transferToDestinationAccount.accept(amountToTransfer);
     }
 
-    public void executeSourceToIntermediaryToDestinationTransfer()
+    public void executeSourceToIntermediaryToDestinationTransfer(
+        final Double amountToTransfer,
+        final A sourceAccount,
+        final A destinationAccount,
+        final A intermediaryAccount
+    )
     {
-        Validate.notNull(intermediaryAccount, "intermediaryAccount must not be null.");
-
         // Role methods:
 
         // Destination account:
@@ -109,9 +90,9 @@ public class MoneyTransferContext<A extends Account>
         // Interaction:
 
         // equivalent of: sourceAccount.transferToIntermediary(amount)
-        sourceAccount_transferToIntermediaryAccount.accept(amount);
+        sourceAccount_transferToIntermediaryAccount.accept(amountToTransfer);
 
         // equivalent of: intermediaryAccount.transferToDestination(amount):
-        intermediaryAccount_transferToDestinationAccount.accept(amount);
+        intermediaryAccount_transferToDestinationAccount.accept(amountToTransfer);
     }
 }
