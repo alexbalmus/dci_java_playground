@@ -46,7 +46,7 @@ public class MoneyTransferContext<A extends Account>
         };
 
         // Source account:
-        Consumer<Double> sourceAccount_transferToDestination = (amount) ->
+        Consumer<Double> sourceAccount_transferToDestinationAccount = (amount) ->
         {
             if (sourceAccount.getBalance() < amount)
             {
@@ -61,7 +61,7 @@ public class MoneyTransferContext<A extends Account>
         // Interaction:
 
         // equivalent of: sourceAccount.transferToDestination(amount)
-        sourceAccount_transferToDestination.accept(amount);
+        sourceAccount_transferToDestinationAccount.accept(amount);
     }
 
     public void executeSourceToIntermediaryToDestinationTransfer()
@@ -81,7 +81,7 @@ public class MoneyTransferContext<A extends Account>
         {
             intermediaryAccount.increaseBalanceBy(amount);
         };
-        Consumer<Double> intermediaryAccount_transferToDestination = (amount) ->
+        Consumer<Double> intermediaryAccount_transferToDestinationAccount = (amount) ->
         {
             if (intermediaryAccount.getBalance() < amount)
             {
@@ -94,7 +94,7 @@ public class MoneyTransferContext<A extends Account>
         };
 
         // Source account:
-        Consumer<Double> sourceAccount_transferToIntermediary = (amount) ->
+        Consumer<Double> sourceAccount_transferToIntermediaryAccount = (amount) ->
         {
             if (sourceAccount.getBalance() < amount)
             {
@@ -109,9 +109,9 @@ public class MoneyTransferContext<A extends Account>
         // Interaction:
 
         // equivalent of: sourceAccount.transferToIntermediary(amount)
-        sourceAccount_transferToIntermediary.accept(amount);
+        sourceAccount_transferToIntermediaryAccount.accept(amount);
 
         // equivalent of: intermediaryAccount.transferToDestination(amount):
-        intermediaryAccount_transferToDestination.accept(amount);
+        intermediaryAccount_transferToDestinationAccount.accept(amount);
     }
 }

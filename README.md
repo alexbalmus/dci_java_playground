@@ -28,7 +28,7 @@ An actual role might look something like this:
 com/alexbalmus/dcibankaccounts/usecases/moneytransfer/MoneyTransferContext.java:49:
 
     // Source account:
-    Consumer<Double> sourceAccount_transferToDestination = (amount) ->
+    Consumer<Double> sourceAccount_transferToDestinationAccount = (amount) ->
     {
         if (sourceAccount.getBalance() < amount)
         {
@@ -55,7 +55,7 @@ com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext.execu
         };
 
         // Source account:
-        Consumer<Double> sourceAccount_transferToDestination = (amount) ->
+        Consumer<Double> sourceAccount_transferToDestinationAccount = (amount) ->
         {
             if (sourceAccount.getBalance() < amount)
             {
@@ -70,7 +70,7 @@ com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext.execu
         // Interaction:
 
         // equivalent of: sourceAccount.transferToDestination(amount)
-        sourceAccount_transferToDestination.accept(amount);
+        sourceAccount_transferToDestinationAccount.accept(amount);
     }
 
 
