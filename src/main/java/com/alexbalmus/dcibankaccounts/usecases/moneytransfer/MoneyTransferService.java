@@ -10,38 +10,47 @@ public class MoneyTransferService<A extends Account>
 {
     public static final String INSUFFICIENT_FUNDS = "Insufficient funds.";
 
+    // DCI context (use case): transfer amount from source account to destination account
     public void executeSourceToDestinationTransfer(
         final Double amountToTransfer,
         final A sourceAccount,
         final A destinationAccount)
     {
-        // Role methods:
+        //----- Roles:
+
+        final A SOURCE = sourceAccount;
+        final A DESTINATION = destinationAccount;
+
+
+        //----- Role methods:
 
         // Destination account:
-        Consumer<Double> destinationAccount_receive = (amount) ->
+        Consumer<Double> DESTINATION_receive = (amount) ->
         {
-            destinationAccount.increaseBalanceBy(amount);
+            DESTINATION.increaseBalanceBy(amount);
         };
 
         // Source account:
-        Consumer<Double> sourceAccount_transferToDestinationAccount = (amount) ->
+        Consumer<Double> SOURCE_transferToDestination = (amount) ->
         {
-            if (sourceAccount.getBalance() < amount)
+            if (SOURCE.getBalance() < amount)
             {
                 throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
             }
-            sourceAccount.decreaseBalanceBy(amount);
+            SOURCE.decreaseBalanceBy(amount);
 
-            // equivalent of: destinationAccount.receive(amount):
-            destinationAccount_receive.accept(amount);
+            // equivalent of: DESTINATION.receive(amount):
+            DESTINATION_receive.accept(amount);
         };
 
-        // Interaction:
+
+        //----- Interaction:
 
         // equivalent of: sourceAccount.transferToDestination(amount)
-        sourceAccount_transferToDestinationAccount.accept(amountToTransfer);
+        SOURCE_transferToDestination.accept(amountToTransfer);
     }
 
+    // DCI context (use case): transfer amount from source account to destination account via intermediary account
     public void executeSourceToIntermediaryToDestinationTransfer(
         final Double amountToTransfer,
         final A sourceAccount,
@@ -49,50 +58,59 @@ public class MoneyTransferService<A extends Account>
         final A intermediaryAccount
     )
     {
-        // Role methods:
+        //----- Roles:
+
+        final A SOURCE = sourceAccount;
+        final A DESTINATION = destinationAccount;
+        final A INTERMEDIARY = intermediaryAccount;
+
+
+        //----- Role methods:
 
         // Destination account:
-        Consumer<Double> destinationAccount_receive = (amount) ->
+        Consumer<Double> DESTINATION_receive = (amount) ->
         {
-            destinationAccount.increaseBalanceBy(amount);
+            DESTINATION.increaseBalanceBy(amount);
         };
 
         // Intermediary account:
-        Consumer<Double> intermediaryAccount_receive = (amount) ->
+        Consumer<Double> INTERMEDIARY_receive = (amount) ->
         {
-            intermediaryAccount.increaseBalanceBy(amount);
+            INTERMEDIARY.increaseBalanceBy(amount);
         };
-        Consumer<Double> intermediaryAccount_transferToDestinationAccount = (amount) ->
+
+        Consumer<Double> INTERMEDIARY_transferToDestination = (amount) ->
         {
-            if (intermediaryAccount.getBalance() < amount)
+            if (INTERMEDIARY.getBalance() < amount)
             {
                 throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
             }
-            intermediaryAccount.decreaseBalanceBy(amount);
+            INTERMEDIARY.decreaseBalanceBy(amount);
 
-            // equivalent of: destinationAccount.receive(amount):
-            destinationAccount_receive.accept(amount);
+            // equivalent of: DESTINATION.receive(amount):
+            DESTINATION_receive.accept(amount);
         };
 
         // Source account:
-        Consumer<Double> sourceAccount_transferToIntermediaryAccount = (amount) ->
+        Consumer<Double> SOURCE_transferToIntermediary = (amount) ->
         {
-            if (sourceAccount.getBalance() < amount)
+            if (SOURCE.getBalance() < amount)
             {
                 throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
             }
-            sourceAccount.decreaseBalanceBy(amount);
+            SOURCE.decreaseBalanceBy(amount);
 
             // equivalent of: intermediaryAccount.receive(amount):
-            intermediaryAccount_receive.accept(amount);
+            INTERMEDIARY_receive.accept(amount);
         };
 
-        // Interaction:
 
-        // equivalent of: sourceAccount.transferToIntermediary(amount)
-        sourceAccount_transferToIntermediaryAccount.accept(amountToTransfer);
+        //----- Interaction:
 
-        // equivalent of: intermediaryAccount.transferToDestination(amount):
-        intermediaryAccount_transferToDestinationAccount.accept(amountToTransfer);
+        // equivalent of: SOURCE.transferToIntermediary(amount)
+        SOURCE_transferToIntermediary.accept(amountToTransfer);
+
+        // equivalent of: INTERMEDIARY.transferToDestination(amount):
+        INTERMEDIARY_transferToDestination.accept(amountToTransfer);
     }
 }

@@ -4,9 +4,6 @@ https://fulloo.info/Documents/ArtimaDCI.html
 
 Please note that given Java's dynamic limitations and the considerations mentioned below, this is not true DCI.
 
-Also note that this is a variation of https://github.com/alexbalmus/dci_java_playground/tree/context_with_role_methods 
-the difference being that instead of a stateful context object there is a stateless service.
-
 Also, checkout another approach I've tried: https://github.com/alexbalmus/dci_java_playground/tree/wrapper_approach 
 
 DCI is a valuable (but not very well known) use case oriented design & architecture approach 
@@ -28,55 +25,63 @@ Inspired from https://blog.encodeart.dev/series/dci-typescript-tutorial
 
 An actual role might look something like this:
 
-com/alexbalmus/dcibankaccounts/usecases/moneytransfer/MoneyTransferService.java:27:
+com/alexbalmus/dcibankaccounts/usecases/moneytransfer/MoneyTransferService.java:33:
 
     // Source account:
-    Consumer<Double> sourceAccount_transferToDestinationAccount = (amount) ->
+    Consumer<Double> SOURCE_transferToDestination = (amount) ->
     {
-        if (sourceAccount.getBalance() < amount)
+        if (SOURCE.getBalance() < amount)
         {
             throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
         }
-        sourceAccount.decreaseBalanceBy(amount);
+        SOURCE.decreaseBalanceBy(amount);
 
-        // equivalent of: destinationAccount.receive(amount):
-        destinationAccount_receive.accept(amount);
+        // equivalent of: DESTINATION.receive(amount):
+        DESTINATION_receive.accept(amount);
     };
 
-The context object would select the objects participating in the use case and call the necessary role methods:
+The context would select the objects participating in the use case and call the necessary role methods:
 
 com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferService.executeSourceToDestinationTransfer:
 
+    // DCI context (use case): transfer amount from source account to destination account
     public void executeSourceToDestinationTransfer(
         final Double amountToTransfer,
         final A sourceAccount,
         final A destinationAccount)
     {
-        // Role methods:
+        //----- Roles:
+
+        final A SOURCE = sourceAccount;
+        final A DESTINATION = destinationAccount;
+
+
+        //----- Role methods:
 
         // Destination account:
-        Consumer<Double> destinationAccount_receive = (amount) ->
+        Consumer<Double> DESTINATION_receive = (amount) ->
         {
-            destinationAccount.increaseBalanceBy(amount);
+            DESTINATION.increaseBalanceBy(amount);
         };
 
         // Source account:
-        Consumer<Double> sourceAccount_transferToDestinationAccount = (amount) ->
+        Consumer<Double> SOURCE_transferToDestination = (amount) ->
         {
-            if (sourceAccount.getBalance() < amount)
+            if (SOURCE.getBalance() < amount)
             {
                 throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
             }
-            sourceAccount.decreaseBalanceBy(amount);
+            SOURCE.decreaseBalanceBy(amount);
 
-            // equivalent of: destinationAccount.receive(amount):
-            destinationAccount_receive.accept(amount);
+            // equivalent of: DESTINATION.receive(amount):
+            DESTINATION_receive.accept(amount);
         };
 
-        // Interaction:
+
+        //----- Interaction:
 
         // equivalent of: sourceAccount.transferToDestination(amount)
-        sourceAccount_transferToDestinationAccount.accept(amountToTransfer);
+        SOURCE_transferToDestination.accept(amountToTransfer);
     }
 
 
