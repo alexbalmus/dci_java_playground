@@ -46,7 +46,7 @@ public class MoneyTransferService<A extends Account>
 
         //----- Interaction:
 
-        // equivalent of: sourceAccount.transferToDestination(amount)
+        // equivalent of: SOURCE.transferToDestination(amount)
         SOURCE_transferToDestination.accept(amountToTransfer);
     }
 

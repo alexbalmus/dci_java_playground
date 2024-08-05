@@ -80,7 +80,7 @@ com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferService.execu
 
         //----- Interaction:
 
-        // equivalent of: sourceAccount.transferToDestination(amount)
+        // equivalent of: SOURCE.transferToDestination(amount)
         SOURCE_transferToDestination.accept(amountToTransfer);
     }
 
