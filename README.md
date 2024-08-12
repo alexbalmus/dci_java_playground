@@ -1,4 +1,7 @@
 # A DCI-inspired Approach For Java
+
+Inspired from Andreas Söderlund's DCI tutorial for TypeScript: https://blog.encodeart.dev/series/dci-typescript-tutorial
+
 If you are new to Data-Context-Interaction, then it's recommended you read the following article first:
 https://fulloo.info/Documents/ArtimaDCI.html
 
@@ -19,16 +22,27 @@ Prior considerations:
 - No reflection - this also might not be accepted in some projects, and Java's reflection API is a pain to work with
 - Able to integrate in a mature/legacy code base, i.e., not requiring any changes to existing entities.
 
-Approach taken for role methods in Java: variables of type functional interface Consumer (simulating functions with single argument and void return type), with a naming convention.
+Approach taken for role methods in Java: variables of type functional interface with a naming convention.
 
-Inspired from https://blog.encodeart.dev/series/dci-typescript-tutorial
+We start by defining a custom functional interface that represents a role method:
 
-An actual role might look something like this:
+com.alexbalmus.dcibankaccounts.common.RoleMethod:
 
-com/alexbalmus/dcibankaccounts/usecases/moneytransfer/MoneyTransferService.java:33:
+    /**
+     * Represents a DCI role method that contributes new contextual behavior to an object
+     * @param <T> method argument
+     */
+    public interface RoleMethod<T>
+    {
+        void call(T t);
+    }
+
+An actual role method might look something like this:
+
+com/alexbalmus/dcibankaccounts/usecases/moneytransfer/MoneyTransferService.java:
 
     // Source account:
-    Consumer<Double> SOURCE_transferToDestination = (amount) ->
+    RoleMethod<Double> SOURCE_transferToDestination = (amount) ->
     {
         if (SOURCE.getBalance() < amount)
         {
@@ -37,14 +51,18 @@ com/alexbalmus/dcibankaccounts/usecases/moneytransfer/MoneyTransferService.java:
         SOURCE.decreaseBalanceBy(amount);
 
         // equivalent of: DESTINATION.receive(amount):
-        DESTINATION_receive.accept(amount);
+        DESTINATION_receive.call(amount);
     };
+
+When calling this, i.e. DESTINATION_receive.call(amount), it would be the equivalent of doing: SOURCE.transferToDestination(amount)
 
 The context would select the objects participating in the use case and call the necessary role methods:
 
 com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferService.executeSourceToDestinationTransfer:
 
-    // DCI context (use case): transfer amount from source account to destination account
+    /**
+     * DCI context (use case): transfer amount from source account to destination account
+     */
     public void executeSourceToDestinationTransfer(
         final Double amountToTransfer,
         final A sourceAccount,
@@ -59,13 +77,13 @@ com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferService.execu
         //----- Role methods:
 
         // Destination account:
-        Consumer<Double> DESTINATION_receive = (amount) ->
+        RoleMethod<Double> DESTINATION_receive = (amount) ->
         {
             DESTINATION.increaseBalanceBy(amount);
         };
 
         // Source account:
-        Consumer<Double> SOURCE_transferToDestination = (amount) ->
+        RoleMethod<Double> SOURCE_transferToDestination = (amount) ->
         {
             if (SOURCE.getBalance() < amount)
             {
@@ -74,14 +92,14 @@ com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferService.execu
             SOURCE.decreaseBalanceBy(amount);
 
             // equivalent of: DESTINATION.receive(amount):
-            DESTINATION_receive.accept(amount);
+            DESTINATION_receive.call(amount);
         };
 
 
         //----- Interaction:
 
         // equivalent of: SOURCE.transferToDestination(amount)
-        SOURCE_transferToDestination.accept(amountToTransfer);
+        SOURCE_transferToDestination.call(amountToTransfer);
     }
 
 

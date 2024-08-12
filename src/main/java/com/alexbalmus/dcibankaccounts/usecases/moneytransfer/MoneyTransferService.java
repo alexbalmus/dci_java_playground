@@ -1,16 +1,21 @@
 package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
 
+import com.alexbalmus.dcibankaccounts.common.RoleMethod;
 import com.alexbalmus.dcibankaccounts.entities.Account;
 import org.springframework.stereotype.Service;
 
-import java.util.function.Consumer;
-
+/**
+ * Money transfer use case variations
+ * @param <A> type of the role playing entities (Account of subtype)
+ */
 @Service
 public class MoneyTransferService<A extends Account>
 {
     public static final String INSUFFICIENT_FUNDS = "Insufficient funds.";
 
-    // DCI context (use case): transfer amount from source account to destination account
+    /**
+     * DCI context (use case): transfer amount from source account to destination account
+     */
     public void executeSourceToDestinationTransfer(
         final Double amountToTransfer,
         final A sourceAccount,
@@ -25,13 +30,13 @@ public class MoneyTransferService<A extends Account>
         //----- Role methods:
 
         // Destination account:
-        Consumer<Double> DESTINATION_receive = (amount) ->
+        RoleMethod<Double> DESTINATION_receive = (amount) ->
         {
             DESTINATION.increaseBalanceBy(amount);
         };
 
         // Source account:
-        Consumer<Double> SOURCE_transferToDestination = (amount) ->
+        RoleMethod<Double> SOURCE_transferToDestination = (amount) ->
         {
             if (SOURCE.getBalance() < amount)
             {
@@ -40,17 +45,20 @@ public class MoneyTransferService<A extends Account>
             SOURCE.decreaseBalanceBy(amount);
 
             // equivalent of: DESTINATION.receive(amount):
-            DESTINATION_receive.accept(amount);
+            DESTINATION_receive.call(amount);
         };
 
 
         //----- Interaction:
 
         // equivalent of: SOURCE.transferToDestination(amount)
-        SOURCE_transferToDestination.accept(amountToTransfer);
+        SOURCE_transferToDestination.call(amountToTransfer);
     }
 
-    // DCI context (use case): transfer amount from source account to destination account via intermediary account
+    /**
+     *  DCI context (use case): transfer amount from source account to destination account
+     *  via intermediary account
+     */
     public void executeSourceToIntermediaryToDestinationTransfer(
         final Double amountToTransfer,
         final A sourceAccount,
@@ -68,18 +76,18 @@ public class MoneyTransferService<A extends Account>
         //----- Role methods:
 
         // Destination account:
-        Consumer<Double> DESTINATION_receive = (amount) ->
+        RoleMethod<Double> DESTINATION_receive = (amount) ->
         {
             DESTINATION.increaseBalanceBy(amount);
         };
 
         // Intermediary account:
-        Consumer<Double> INTERMEDIARY_receive = (amount) ->
+        RoleMethod<Double> INTERMEDIARY_receive = (amount) ->
         {
             INTERMEDIARY.increaseBalanceBy(amount);
         };
 
-        Consumer<Double> INTERMEDIARY_transferToDestination = (amount) ->
+        RoleMethod<Double> INTERMEDIARY_transferToDestination = (amount) ->
         {
             if (INTERMEDIARY.getBalance() < amount)
             {
@@ -88,11 +96,11 @@ public class MoneyTransferService<A extends Account>
             INTERMEDIARY.decreaseBalanceBy(amount);
 
             // equivalent of: DESTINATION.receive(amount):
-            DESTINATION_receive.accept(amount);
+            DESTINATION_receive.call(amount);
         };
 
         // Source account:
-        Consumer<Double> SOURCE_transferToIntermediary = (amount) ->
+        RoleMethod<Double> SOURCE_transferToIntermediary = (amount) ->
         {
             if (SOURCE.getBalance() < amount)
             {
@@ -101,16 +109,16 @@ public class MoneyTransferService<A extends Account>
             SOURCE.decreaseBalanceBy(amount);
 
             // equivalent of: intermediaryAccount.receive(amount):
-            INTERMEDIARY_receive.accept(amount);
+            INTERMEDIARY_receive.call(amount);
         };
 
 
         //----- Interaction:
 
         // equivalent of: SOURCE.transferToIntermediary(amount)
-        SOURCE_transferToIntermediary.accept(amountToTransfer);
+        SOURCE_transferToIntermediary.call(amountToTransfer);
 
         // equivalent of: INTERMEDIARY.transferToDestination(amount):
-        INTERMEDIARY_transferToDestination.accept(amountToTransfer);
+        INTERMEDIARY_transferToDestination.call(amountToTransfer);
     }
 }
