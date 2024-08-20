@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootApplication
 @EnableTransactionManagement
-@Transactional
+@Transactional(readOnly = true)
 public class Main implements CommandLineRunner
 {
     @PersistenceContext
@@ -42,6 +42,7 @@ public class Main implements CommandLineRunner
         executeAToBToCMoneyTransferScenario();
     }
 
+    @Transactional
     public void executeAToBMoneyTransferScenario()
     {
         var source = new Account(100.0);
@@ -54,6 +55,7 @@ public class Main implements CommandLineRunner
 
         System.out.println("Transferring 50 from Source to Destination.");
         moneyTransferService.executeSourceToDestinationTransfer(50.0, source, destination);
+
         accountsRepository.flush();
 
         entityManager.detach(source);
@@ -68,6 +70,7 @@ public class Main implements CommandLineRunner
         System.out.println("\n\n");
     }
 
+    @Transactional
     public void executeAToBToCMoneyTransferScenario()
     {
         var source = new Account(100.0);
@@ -86,8 +89,18 @@ public class Main implements CommandLineRunner
         moneyTransferService.executeSourceToIntermediaryToDestinationTransfer(
             50.0, source, destination, intermediary);
 
-        System.out.println("Source account: " + source.getBalance()); // 50.0
-        System.out.println("Intermediary account: " + intermediary.getBalance()); // 0.0
-        System.out.println("Destination account: " + destination.getBalance()); // 250.0
+        accountsRepository.flush();
+
+        entityManager.detach(source);
+        entityManager.detach(destination);
+        entityManager.detach(intermediary);
+
+        var retSource = accountsRepository.findById(source.getId()).orElseThrow();
+        var retIntermediary = accountsRepository.findById(intermediary.getId()).orElseThrow();
+        var retDestination = accountsRepository.findById(destination.getId()).orElseThrow();
+
+        System.out.println("Source account: " + retSource.getBalance()); // 50.0
+        System.out.println("Intermediary account: " + retIntermediary.getBalance()); // 0.0
+        System.out.println("Destination account: " + retDestination.getBalance()); // 250.0
     }
 }
