@@ -7,7 +7,7 @@ https://fulloo.info/Documents/ArtimaDCI.html
 
 Please note that given Java's dynamic limitations and the considerations mentioned below, this is not true DCI.
 
-Also, checkout another approach I've tried: https://github.com/alexbalmus/dci_java_playground/tree/wrapper_approach 
+Also, checkout another approach I've tried, which I call "Entity - UseCase - Wrapper": https://github.com/alexbalmus/dci_java_playground/tree/wrapper_approach_v2  
 
 DCI is a valuable (but not very well known) use case oriented design & architecture approach 
 and OOP paradigm shift. Due to its particular characteristics, it's rather difficult to implement in a strongly typed 
