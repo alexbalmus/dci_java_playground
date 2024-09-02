@@ -2,12 +2,12 @@
 
 Inspired from Andreas Söderlund's DCI tutorial for TypeScript: https://blog.encodeart.dev/series/dci-typescript-tutorial
 
-If you are new to Data-Context-Interaction, then it's recommended you read the following article first:
-https://fulloo.info/Documents/ArtimaDCI.html
-
 Please note that given Java's dynamic limitations and the considerations mentioned below, this is not true DCI.
 
-Also, checkout another approach I've tried, which I call "Entity - UseCase - Wrapper": https://github.com/alexbalmus/dci_java_playground/tree/wrapper_approach_v2  
+Also, checkout another approach I've tried, which I call "Entity - UseCase - Wrapper": https://github.com/alexbalmus/dci_java_playground/tree/wrapper_approach_v2
+
+If you are new to Data-Context-Interaction, then it's recommended you read the following article first:
+https://fulloo.info/Documents/ArtimaDCI.html
 
 DCI is a valuable (but not very well known) use case oriented design & architecture approach 
 and OOP paradigm shift. Due to its particular characteristics, it's rather difficult to implement in a strongly typed 
