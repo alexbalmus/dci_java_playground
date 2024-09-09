@@ -4,7 +4,7 @@ Inspired from Andreas Söderlund's DCI tutorial for TypeScript: https://blog.enc
 
 Please note that given Java's dynamic limitations and the considerations mentioned below, this is not true DCI.
 
-Also, checkout another approach I've tried, which I call "Entity - UseCase - Wrapper": https://github.com/alexbalmus/dci_java_playground/tree/wrapper_approach_v2
+Also, checkout another approach I've tried, which I call "Entity - UseCase - Wrapper": https://github.com/alexbalmus/euw
 
 If you are new to Data-Context-Interaction, then it's recommended you read the following article first:
 https://fulloo.info/Documents/ArtimaDCI.html
