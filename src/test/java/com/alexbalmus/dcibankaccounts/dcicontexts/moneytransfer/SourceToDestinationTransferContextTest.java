@@ -1,4 +1,4 @@
-package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
+package com.alexbalmus.dcibankaccounts.dcicontexts.moneytransfer;
 
 import com.alexbalmus.dcibankaccounts.entities.Account;
 import org.testng.annotations.Test;
@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 @Test
-public class MoneyTransferServiceTest
+public class SourceToDestinationTransferContextTest
 {
     @Test
     public void testExecuteSourceToDestinationTransfer()
@@ -17,9 +17,9 @@ public class MoneyTransferServiceTest
         var destination = new SpecialAccount(200.0);
         destination.setId(2L);
 
-        var moneyTransferService = new MoneyTransferService<>();
+        var target = new SourceToDestinationTransferContext(source, destination, 50.0);
 
-        moneyTransferService.executeSourceToDestinationTransfer(50.0, source, destination);
+        target.perform();
 
         assertEquals(source.getBalance(), 50.0);
         assertEquals(destination.getBalance(), 250.0);
@@ -34,16 +34,16 @@ public class MoneyTransferServiceTest
         var destination = new Account(200.0);
         destination.setId(2L);
 
-        var moneyTransferService = new MoneyTransferService<>();
+        var target = new SourceToDestinationTransferContext(source, destination, 50.0);
 
         try
         {
-            moneyTransferService.executeSourceToDestinationTransfer(50.0, source, destination);
+            target.perform();
             fail("Exception should have been thrown.");
         }
         catch (RuntimeException e)
         {
-            assertEquals(e.getMessage(), MoneyTransferService.INSUFFICIENT_FUNDS);
+            assertEquals(e.getMessage(), SourceToDestinationTransferContext.INSUFFICIENT_FUNDS);
         }
     }
 

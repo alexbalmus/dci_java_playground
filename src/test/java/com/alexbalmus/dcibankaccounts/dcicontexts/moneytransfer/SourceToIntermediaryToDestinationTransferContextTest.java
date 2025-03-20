@@ -1,4 +1,4 @@
-package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
+package com.alexbalmus.dcibankaccounts.dcicontexts.moneytransfer;
 
 import com.alexbalmus.dcibankaccounts.entities.Account;
 import org.testng.annotations.Test;
@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 
 @Test
-public class ABCMoneyTransferServiceTest
+public class SourceToIntermediaryToDestinationTransferContextTest
 {
     @Test
     public void testExecuteSourceToDestinationTransfer()
@@ -20,9 +20,9 @@ public class ABCMoneyTransferServiceTest
         var destination = new Account(200.0);
         destination.setId(3L);
 
-        var moneyTransferService = new MoneyTransferService<>();
+        var target = new SourceToIntermediaryToDestinationTransferContext(source, destination, intermediary, 50.0);
 
-        moneyTransferService.executeSourceToIntermediaryToDestinationTransfer(50.0, source, destination, intermediary);
+        target.perform();
 
         assertEquals(source.getBalance(), 50.0);
         assertEquals(intermediary.getBalance(), 0.0);
