@@ -1,5 +1,9 @@
 # A DCI-inspired Approach For Java
 
+Note: if you arrived at this page after following the discussion on https://groups.google.com/g/object-composition/c/YM0UNIIx_b8 
+then it's important to know that the wrapper approach previously found here was moved (and improved) to this other project: https://github.com/alexbalmus/euw 
+. The current approach described on this page is a different and simpler one. Read on to find out.
+
 Inspired from Andreas Söderlund's DCI tutorial for TypeScript: https://blog.encodeart.dev/series/dci-typescript-tutorial
 
 If you are new to Data-Context-Interaction, then it's recommended you read the following article first:
