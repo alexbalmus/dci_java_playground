@@ -42,19 +42,19 @@ An actual role method might look something like this:
 com/alexbalmus/dcibankaccounts/usecases/moneytransfer/MoneyTransferService.java:
 
     // Source account:
-    RoleMethod<Double> SOURCE_transferToDestination = (amount) ->
+    RoleMethod<Double> source_transferToDestination = (amount) ->
     {
-        if (SOURCE.getBalance() < amount)
+        if (source.getBalance() < amount)
         {
             throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
         }
-        SOURCE.decreaseBalanceBy(amount);
+        source.decreaseBalanceBy(amount);
 
-        // equivalent of: DESTINATION.receive(amount):
-        DESTINATION_receive.call(amount);
+        // equivalent of: destination.receive(amount):
+        destination_receive.call(amount);
     };
 
-When calling this, i.e. DESTINATION_receive.call(amount), it would be the equivalent of doing: SOURCE.transferToDestination(amount)
+When calling this, i.e. source_transferToDestination.call(amount), it emulates the equivalent of: source.transferToDestination(amount)
 
 The context would select the objects participating in the use case and call the necessary role methods:
 
@@ -65,41 +65,35 @@ com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferService.execu
      */
     public void executeSourceToDestinationTransfer(
         final Double amountToTransfer,
-        final A sourceAccount,
-        final A destinationAccount)
+        final A source,
+        final A destination)
     {
-        //----- Roles:
-
-        final A SOURCE = sourceAccount;
-        final A DESTINATION = destinationAccount;
-
-
         //----- Role methods:
 
         // Destination account:
-        RoleMethod<Double> DESTINATION_receive = (amount) ->
+        RoleMethod<Double> destination_receive = (amount) ->
         {
-            DESTINATION.increaseBalanceBy(amount);
+            destination.increaseBalanceBy(amount);
         };
 
         // Source account:
-        RoleMethod<Double> SOURCE_transferToDestination = (amount) ->
+        RoleMethod<Double> source_transferToDestination = (amount) ->
         {
-            if (SOURCE.getBalance() < amount)
+            if (source.getBalance() < amount)
             {
                 throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
             }
-            SOURCE.decreaseBalanceBy(amount);
+            source.decreaseBalanceBy(amount);
 
-            // equivalent of: DESTINATION.receive(amount):
-            DESTINATION_receive.call(amount);
+            // equivalent of: destination.receive(amount):
+            destination_receive.call(amount);
         };
 
 
         //----- Interaction:
 
-        // equivalent of: SOURCE.transferToDestination(amount)
-        SOURCE_transferToDestination.call(amountToTransfer);
+        // equivalent of: source.transferToDestination(amount)
+        source_transferToDestination.call(amountToTransfer);
     }
 
 

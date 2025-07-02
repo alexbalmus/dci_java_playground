@@ -18,41 +18,35 @@ public class MoneyTransferService<A extends Account>
      */
     public void executeSourceToDestinationTransfer(
         final Double amountToTransfer,
-        final A sourceAccount,
-        final A destinationAccount)
+        final A source,
+        final A destination)
     {
-        //----- Roles:
-
-        final A SOURCE = sourceAccount;
-        final A DESTINATION = destinationAccount;
-
-
         //----- Role methods:
 
         // Destination account:
-        RoleMethod<Double> DESTINATION_receive = (amount) ->
+        RoleMethod<Double> destination_receive = (amount) ->
         {
-            DESTINATION.increaseBalanceBy(amount);
+            destination.increaseBalanceBy(amount);
         };
 
         // Source account:
-        RoleMethod<Double> SOURCE_transferToDestination = (amount) ->
+        RoleMethod<Double> source_transferToDestination = (amount) ->
         {
-            if (SOURCE.getBalance() < amount)
+            if (source.getBalance() < amount)
             {
                 throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
             }
-            SOURCE.decreaseBalanceBy(amount);
+            source.decreaseBalanceBy(amount);
 
-            // equivalent of: DESTINATION.receive(amount):
-            DESTINATION_receive.call(amount);
+            // equivalent of: destination.receive(amount):
+            destination_receive.call(amount);
         };
 
 
         //----- Interaction:
 
-        // equivalent of: SOURCE.transferToDestination(amount)
-        SOURCE_transferToDestination.call(amountToTransfer);
+        // equivalent of: source.transferToDestination(amount)
+        source_transferToDestination.call(amountToTransfer);
     }
 
     /**
@@ -61,64 +55,57 @@ public class MoneyTransferService<A extends Account>
      */
     public void executeSourceToIntermediaryToDestinationTransfer(
         final Double amountToTransfer,
-        final A sourceAccount,
-        final A destinationAccount,
-        final A intermediaryAccount
+        final A source,
+        final A destination,
+        final A intermediary
     )
     {
-        //----- Roles:
-
-        final A SOURCE = sourceAccount;
-        final A DESTINATION = destinationAccount;
-        final A INTERMEDIARY = intermediaryAccount;
-
-
         //----- Role methods:
 
         // Destination account:
-        RoleMethod<Double> DESTINATION_receive = (amount) ->
+        RoleMethod<Double> destination_receive = (amount) ->
         {
-            DESTINATION.increaseBalanceBy(amount);
+            destination.increaseBalanceBy(amount);
         };
 
         // Intermediary account:
-        RoleMethod<Double> INTERMEDIARY_receive = (amount) ->
+        RoleMethod<Double> intermediary_receive = (amount) ->
         {
-            INTERMEDIARY.increaseBalanceBy(amount);
+            intermediary.increaseBalanceBy(amount);
         };
 
-        RoleMethod<Double> INTERMEDIARY_transferToDestination = (amount) ->
+        RoleMethod<Double> intermediary_transferToDestination = (amount) ->
         {
-            if (INTERMEDIARY.getBalance() < amount)
+            if (intermediary.getBalance() < amount)
             {
                 throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
             }
-            INTERMEDIARY.decreaseBalanceBy(amount);
+            intermediary.decreaseBalanceBy(amount);
 
-            // equivalent of: DESTINATION.receive(amount):
-            DESTINATION_receive.call(amount);
+            // equivalent of: destination.receive(amount):
+            destination_receive.call(amount);
         };
 
         // Source account:
-        RoleMethod<Double> SOURCE_transferToIntermediary = (amount) ->
+        RoleMethod<Double> source_transferToIntermediary = (amount) ->
         {
-            if (SOURCE.getBalance() < amount)
+            if (source.getBalance() < amount)
             {
                 throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
             }
-            SOURCE.decreaseBalanceBy(amount);
+            source.decreaseBalanceBy(amount);
 
-            // equivalent of: intermediaryAccount.receive(amount):
-            INTERMEDIARY_receive.call(amount);
+            // equivalent of: intermediary.receive(amount):
+            intermediary_receive.call(amount);
         };
 
 
         //----- Interaction:
 
-        // equivalent of: SOURCE.transferToIntermediary(amount)
-        SOURCE_transferToIntermediary.call(amountToTransfer);
+        // equivalent of: source.transferToIntermediary(amount)
+        source_transferToIntermediary.call(amountToTransfer);
 
-        // equivalent of: INTERMEDIARY.transferToDestination(amount):
-        INTERMEDIARY_transferToDestination.call(amountToTransfer);
+        // equivalent of: intermediary.transferToDestination(amount):
+        intermediary_transferToDestination.call(amountToTransfer);
     }
 }
