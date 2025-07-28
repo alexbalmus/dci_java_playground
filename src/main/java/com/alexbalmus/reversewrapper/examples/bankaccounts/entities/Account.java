@@ -1,17 +1,16 @@
-package com.alexbalmus.dcibankaccounts.entities;
+package com.alexbalmus.reversewrapper.examples.bankaccounts.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.Data;
+import com.alexbalmus.reversewrapper.common.jpa.AbstractRolePlayingJpaEntity;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+
 @Entity
 @Table(name="account")
-public class Account
+@Getter
+@Setter
+public class Account extends AbstractRolePlayingJpaEntity
 {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

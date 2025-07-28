@@ -2,9 +2,7 @@
 
 Note: if you arrived at this page after following the discussion on https://groups.google.com/g/object-composition/c/YM0UNIIx_b8 
 then it's important to know that the wrapper approach previously found here was moved (and improved) to this other project: https://github.com/alexbalmus/euw 
-. The current approach described on this page is a different and simpler one. Read on to find out.
-
-Inspired from Andreas Söderlund's DCI tutorial for TypeScript: https://blog.encodeart.dev/series/dci-typescript-tutorial
+. The current approach described on this page is a "reverse-wrapper" approach. Read on to find out.
 
 If you are new to Data-Context-Interaction, then it's recommended you read the following article first:
 https://fulloo.info/Documents/ArtimaDCI.html
@@ -22,43 +20,162 @@ the valuable features DCI brings.
 Prior considerations:
 - Pure Java for roles/role-injection - no third party libraries / frameworks, as they might not be accepted in certain projects
 - No reflection - this also might not be accepted in some projects, and Java's reflection API is a pain to work with
-- Able to integrate in a mature/legacy code base, i.e. not requiring any changes to existing entities.
 
-Approach taken for roles: methods with a naming convention.
+Approach taken for roles: "reverse-wrapper" role object injected into objects that accept it, thus making new (contextual) methods available.
+
+Provided interfaces:
+
+- Role: implemented by "reverse-wrapper" role objects:
+
+com.alexbalmus.reversewrapper.common.Role:
+
+```java
+    /**
+    * Basic role interface
+    * @param <E> the generic type of the entity which will play the role
+    */
+    public interface Role<E>
+    {
+        /**
+         * @return a reference to the role-playing entity
+         */
+        E thiz();
+    }
+```
+
+- RolePlayer: implemented by "role-playing" objects:
+
+com.alexbalmus.reversewrapper.common.RolePlayer:
+
+```java
+    /**
+     * Interface to be implemented by role-playing objects
+     */
+    public interface RolePlayer
+    {
+        /**
+         * Accept a role during use-case execution
+         * @param role the role to be played
+         */
+        void acceptRole(Role<? extends RolePlayer> role);
+    
+        /**
+         * Expose the role object to invoke the role methods
+         * @return the role object
+         * @param <R> the generic type of the role object to cast to
+         */
+        <R extends Role<? extends RolePlayer>> R role();
+
+        /**
+         * Clear the role object at the end of use-case execution
+         */   
+        default void clearRole()
+        {
+            acceptRole(null);
+        }
+    }
+```
+
+Provided abstract class for JPA entities:
+
+com.alexbalmus.reversewrapper.common.jpa.AbstractRolePlayingJpaEntity:
+
+```java
+    /**
+     * Abstract class implementing {@link com.alexbalmus.reversewrapper.common.RolePlayer}
+     * for JPA entities
+     */
+    @MappedSuperclass
+    public class AbstractRolePlayingJpaEntity implements RolePlayer 
+    {
+        @Transient // This field is not persisted in the database
+        Role<? extends RolePlayer> role;
+        
+        @Override
+        public void acceptRole(Role<? extends RolePlayer> role) 
+        {
+            if (role != null && role.thiz() != this)
+            {
+                throw new IllegalArgumentException("Invalid role.");
+            }
+            
+           this.role = role;
+        }
+        
+        @Override
+        @SuppressWarnings("unchecked")
+        public <R extends Role<? extends RolePlayer>> R role() 
+        {
+            if (this.role == null)
+            {
+                throw new IllegalStateException("No role has been assigned to this entity.");
+            }
+            
+           try
+           {
+               return (R) this.role;
+           }
+           catch (ClassCastException e)
+           {
+               throw new IllegalStateException("Attempting to play an invalid role.");
+           }
+        }
+    }
+```
+
+Custom annotation for DCI contexts as a Spring @Component stereotype: com.alexbalmus.reversewrapper.common.DciContext
 
 An actual role method might look something like this:
 
-com.alexbalmus.dcibankaccounts.dcicontexts.moneytransfer.SourceToDestinationTransferContext.source_transferToDestination:
+com.alexbalmus.reversewrapper.examples.bankaccounts.dcicontexts.moneytransfer.Account_Source:
 
-    // Source role:
-    void source_transferToDestination(Double amount)
+```java
+    /**
+     * Source account role
+     */
+    interface Account_Source extends Role<Account> 
     {
-        if (source.getBalance() < amount)
+        String INSUFFICIENT_FUNDS = "Insufficient funds.";
+    
+        default void transfer(final Double amount, final Account destination) 
         {
-            throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
+            if (!(destination.role() instanceof Account_Destination)) 
+            {
+                throw new IllegalArgumentException("Not a destination account.");
+            }
+    
+            if (thiz().getBalance() < amount) 
+            {
+                throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
+            }
+    
+            thiz().decreaseBalanceBy(amount);
+    
+            destination.<Account_Destination>role().receive(amount);
         }
-        source.decreaseBalanceBy(amount);
-
-        // equivalent of: destination.receive(amount):
-        destination_receive(amount);
     }
-
-When calling this, i.e. source_transferToDestination(amount), it would be the equivalent of doing: source.transferToDestination(amount)
+```
 
 The context would select the objects participating in the use case and call the necessary role methods:
 
-com.alexbalmus.dcibankaccounts.dcicontexts.moneytransfer.SourceToDestinationTransferContext.perform:
+com.alexbalmus.reversewrapper.examples.bankaccounts.dcicontexts.moneytransfer.MoneyTransferDciContext.transferFromSourceToDestination:
 
-    /**
-     * DCI context enactment
-     */
-    public void perform()
+```java
+    public void transferFromSourceToDestination(
+        final Account source, final Account destination, final Double amount)
     {
-        //----- Interaction:
+        //--- Use case roles setup:
+        source.acceptRole(createSourceRole(source));
+        destination.acceptRole(createDestinationRole(destination));
 
-        // equivalent of: source.transferToDestination(amount)
-        source_transferToDestination(amount);
+        //--- Interaction:
+        source.<Account_Source>role().transfer(amount, destination);
+
+        //--- Clear roles:
+        source.clearRole();
+        destination.clearRole();
     }
+```
 
 Also, checkout a related approach I've tried, which I call "Entity - UseCase - Wrapper": https://github.com/alexbalmus/euw
 

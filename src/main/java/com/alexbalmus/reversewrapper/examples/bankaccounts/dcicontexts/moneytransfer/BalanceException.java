@@ -1,4 +1,4 @@
-package com.alexbalmus.dcibankaccounts.dcicontexts.moneytransfer;
+package com.alexbalmus.reversewrapper.examples.bankaccounts.dcicontexts.moneytransfer;
 
 class BalanceException extends RuntimeException
 {
