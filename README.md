@@ -30,6 +30,7 @@ An actual role method might look something like this:
 
 com.alexbalmus.dcibankaccounts.dcicontexts.moneytransfer.SourceToDestinationTransferContext.source_transferToDestination:
 
+```java
     // Source role:
     void source_transferToDestination(Double amount)
     {
@@ -42,6 +43,7 @@ com.alexbalmus.dcibankaccounts.dcicontexts.moneytransfer.SourceToDestinationTran
         // equivalent of: destination.receive(amount):
         destination_receive(amount);
     }
+```
 
 When calling this, i.e. source_transferToDestination(amount), it would be the equivalent of doing: source.transferToDestination(amount)
 
@@ -49,6 +51,7 @@ The context would select the objects participating in the use case and call the 
 
 com.alexbalmus.dcibankaccounts.dcicontexts.moneytransfer.SourceToDestinationTransferContext.perform:
 
+```java
     /**
      * DCI context enactment
      */
@@ -59,6 +62,7 @@ com.alexbalmus.dcibankaccounts.dcicontexts.moneytransfer.SourceToDestinationTran
         // equivalent of: source.transferToDestination(amount)
         source_transferToDestination(amount);
     }
+```
 
 Also, checkout a related approach I've tried, which I call "Entity - UseCase - Wrapper": https://github.com/alexbalmus/euw
 
