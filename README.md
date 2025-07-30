@@ -28,6 +28,7 @@ We start by defining a custom functional interface that represents a role method
 
 com.alexbalmus.dcibankaccounts.common.RoleMethod:
 
+```java
     /**
      * Represents a DCI role method that contributes new contextual behavior to an object
      * @param <T> method argument
@@ -36,11 +37,13 @@ com.alexbalmus.dcibankaccounts.common.RoleMethod:
     {
         void call(T t);
     }
+```
 
 An actual role method might look something like this:
 
 com/alexbalmus/dcibankaccounts/usecases/moneytransfer/MoneyTransferService.java:
 
+```java
     // Source account:
     RoleMethod<Double> source_transferToDestination = (amount) ->
     {
@@ -53,6 +56,7 @@ com/alexbalmus/dcibankaccounts/usecases/moneytransfer/MoneyTransferService.java:
         // equivalent of: destination.receive(amount):
         destination_receive.call(amount);
     };
+```
 
 When calling this, i.e. source_transferToDestination.call(amount), it emulates the equivalent of: source.transferToDestination(amount)
 
@@ -60,6 +64,7 @@ The context would select the objects participating in the use case and call the 
 
 com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferService.executeSourceToDestinationTransfer:
 
+```java
     /**
      * DCI context (use case): transfer amount from source account to destination account
      */
@@ -95,7 +100,7 @@ com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferService.execu
         // equivalent of: source.transferToDestination(amount)
         source_transferToDestination.call(amountToTransfer);
     }
-
+```
 
 More info:
 
