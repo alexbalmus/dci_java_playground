@@ -2,7 +2,14 @@
 
 Note: if you arrived at this page after following the discussion on https://groups.google.com/g/object-composition/c/YM0UNIIx_b8 
 then it's important to know that the wrapper approach previously found here was moved (and improved) to this other project: https://github.com/alexbalmus/euw 
-. The current approach described on this page is a "reverse-wrapper" approach. Read on to find out.
+
+This page describes the "reverse-wrapper" approach. Read on to find out.
+
+Other approaches I've tried:
+- The "method naming" approach: https://github.com/alexbalmus/dci_java_playground/tree/method_naming_approach
+- The "method reference" approach: https://github.com/alexbalmus/dci_java_playground/tree/method_reference_approach
+- "Entity - UseCase - Wrapper": https://github.com/alexbalmus/euw
+
 
 If you are new to Data-Context-Interaction, then it's recommended you read the following article first:
 https://fulloo.info/Documents/ArtimaDCI.html
@@ -177,7 +184,6 @@ com.alexbalmus.reversewrapper.examples.bankaccounts.dcicontexts.moneytransfer.Mo
     }
 ```
 
-Also, checkout a related approach I've tried, which I call "Entity - UseCase - Wrapper": https://github.com/alexbalmus/euw
 
 More info:
 
