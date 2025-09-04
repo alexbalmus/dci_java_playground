@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 @Test
-public class MoneyTransferServiceTest
+public class MoneyTransferContextTest
 {
     @Test
     public void testExecuteSourceToDestinationTransfer()
@@ -17,7 +17,7 @@ public class MoneyTransferServiceTest
         var destination = new SpecialAccount(200.0);
         destination.setId(2L);
 
-        var moneyTransferService = new MoneyTransferService<>();
+        var moneyTransferService = new MoneyTransferContext();
 
         moneyTransferService.executeSourceToDestinationTransfer(50.0, source, destination);
 
@@ -34,7 +34,7 @@ public class MoneyTransferServiceTest
         var destination = new Account(200.0);
         destination.setId(2L);
 
-        var moneyTransferService = new MoneyTransferService<>();
+        var moneyTransferService = new MoneyTransferContext();
 
         try
         {
@@ -43,7 +43,7 @@ public class MoneyTransferServiceTest
         }
         catch (RuntimeException e)
         {
-            assertEquals(e.getMessage(), MoneyTransferService.INSUFFICIENT_FUNDS);
+            assertEquals(e.getMessage(), MoneyTransferContext.INSUFFICIENT_FUNDS);
         }
     }
 

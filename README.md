@@ -1,106 +1,147 @@
-# A DCI-inspired Approach For Java
-
-Inspired from Andreas Söderlund's DCI tutorial for TypeScript: https://blog.encodeart.dev/series/dci-typescript-tutorial
-
-Please note that given Java's dynamic limitations and the considerations mentioned below, this is not true DCI.
-
-Also, checkout another approach I've tried, which I call "Entity - UseCase - Wrapper": https://github.com/alexbalmus/euw
+# An attempt to implement a DCI example in Java
 
 If you are new to Data-Context-Interaction, then it's recommended you read the following article first:
 https://fulloo.info/Documents/ArtimaDCI.html
 
-DCI is a valuable (but not very well known) use case oriented design & architecture approach 
-and OOP paradigm shift. Due to its particular characteristics, it's rather difficult to implement in a strongly typed 
+DCI is a valuable (but not very well known) software design & architecture approach and OOP paradigm shift. 
+
+Some key ideas:
+- two orthogonal perspectives: "what the system is" (Data) and "what the system does" (Interaction in a Context)
+- explicitly capture object interaction as a network of roles played by objects in a context
+- objects should initially be simple / "dumb" / data-objects: they may contain methods related to themselves (for
+validations, invariants protection etc.) but not for interaction with other objects
+- objects will receive additional behavior from the roles they play in a certain context
+- identity of the role-playing objects must be retained (i.e. a role may not be implemented as a wrapper)
+
+Due to the particular characteristics, it's rather difficult to implement in a strongly typed 
 programming language like Java. Two reference examples have been provided by DCI's authors, one using a library called 
-Qi4J and the other using Java's reflection API: https://fulloo.info/Examples/JavaExamples/ 
+Qi4J and the other using Java's reflection API: https://fulloo.info/Examples/JavaExamples/
 
-In my case, I'm going for some tradeoffs: this is not "pure" DCI, but still aiming to be as close as possible to 
-the valuable features DCI brings.
+Approach taken here: extension methods provided by Project Lombok: https://projectlombok.org/features/experimental/ExtensionMethod 
 
-Prior considerations:
-- Pure Java for roles/role-injection - no third party libraries / frameworks, as they might not be accepted in certain projects
-- No reflection - this also might not be accepted in some projects, and Java's reflection API is a pain to work with
-- Able to integrate in a mature/legacy code base, i.e., not requiring any changes to existing entities.
+In this example, "Data" is represented by simple JPA entities of type Account:
 
-Approach taken for role methods in Java: variables of type functional interface with a naming convention.
+com.alexbalmus.dcibankaccounts.entities.Account:
 
-We start by defining a custom functional interface that represents a role method:
+```java
+@Entity
+@Table(name="account")
+public class Account
+{
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
 
-com.alexbalmus.dcibankaccounts.common.RoleMethod:
+    @Column(name = "balance")
+    private Double balance;
+
+    // Constructors, getters and setters omitted for brevity.
+
+    public void increaseBalanceBy(final Double amount)
+    {
+        balance += amount;
+    }
+
+    public void decreaseBalanceBy(final Double amount)
+    {
+        balance -= amount;
+    }
+    
+    // equals and hashCode omitted for brevity.
+}
+```
+
+The following are two roles used in a money transfer scenario: the "source account" role and the "destination account" role:
+
+com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext.Account_Source:
 
 ```java
     /**
-     * Represents a DCI role method that contributes new contextual behavior to an object
-     * @param <T> method argument
+     * Account_Source role
+     * Uses extension method MoneyTransferContext.Account_Destination#receive
      */
-    public interface RoleMethod<T>
+    @ExtensionMethod(MoneyTransferContext.Account_Destination.class)
+    static class Account_Source
     {
-        void call(T t);
+        @SuppressWarnings("unused")
+        public static void transfer(Account thiz, Account destination, Double amount)
+        {
+            if (thiz.getBalance() < amount)
+            {
+                throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
+            }
+    
+            thiz.decreaseBalanceBy(amount);
+    
+            destination.receive(amount);
+        }
     }
 ```
 
-An actual role method might look something like this:
+Notice how "destination" gains the new (contextual) extension method called "receive", which is defined below:
 
-com/alexbalmus/dcibankaccounts/usecases/moneytransfer/MoneyTransferService.java:
+com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext.Account_Destination:
 
 ```java
-    // Source account:
-    RoleMethod<Double> source_transferToDestination = (amount) ->
+    /**
+     * Account_Destination role
+     */
+    static class Account_Destination
     {
-        if (source.getBalance() < amount)
+        @SuppressWarnings("unused")
+        public static void receive(Account thiz, Double amount)
         {
-            throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
+            thiz.increaseBalanceBy(amount);
         }
-        source.decreaseBalanceBy(amount);
-
-        // equivalent of: destination.receive(amount):
-        destination_receive.call(amount);
-    };
+    }
 ```
-
-When calling this, i.e. source_transferToDestination.call(amount), it emulates the equivalent of: source.transferToDestination(amount)
 
 The context would select the objects participating in the use case and call the necessary role methods:
 
-com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferService.executeSourceToDestinationTransfer:
+com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext.executeSourceToDestinationTransfer:
 
 ```java
+/**
+ * Money transfer DCI context.
+ * Uses extension method MoneyTransferContext.Account_Source#transfer
+ */
+@ExtensionMethod(MoneyTransferContext.Account_Source.class)
+public class MoneyTransferContext
+{
+    public static final String INSUFFICIENT_FUNDS = "Insufficient funds.";
+
     /**
      * DCI context (use case): transfer amount from source account to destination account
      */
     public void executeSourceToDestinationTransfer(
         final Double amountToTransfer,
-        final A source,
-        final A destination)
+        final Account source,
+        final Account destination)
     {
-        //----- Role methods:
-
-        // Destination account:
-        RoleMethod<Double> destination_receive = (amount) ->
-        {
-            destination.increaseBalanceBy(amount);
-        };
-
-        // Source account:
-        RoleMethod<Double> source_transferToDestination = (amount) ->
-        {
-            if (source.getBalance() < amount)
-            {
-                throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
-            }
-            source.decreaseBalanceBy(amount);
-
-            // equivalent of: destination.receive(amount):
-            destination_receive.call(amount);
-        };
-
-
-        //----- Interaction:
-
-        // equivalent of: source.transferToDestination(amount)
-        source_transferToDestination.call(amountToTransfer);
+        source.transfer(destination, amountToTransfer);
     }
+    
+    // Other code omitted for brevity.
+}
 ```
+
+Notice how "source" gains the new (contextual) extension method called "transfer".
+
+
+Other approaches I've tried:
+
+DCI candidates (not necessarily compliant):
+
+- The "method reference" approach: https://github.com/alexbalmus/dci_java_playground/tree/method_reference_approach
+
+- The "method naming" approach: https://github.com/alexbalmus/dci_java_playground/tree/method_naming_approach
+
+- The "reverse wrapper" approach: https://github.com/alexbalmus/dci_java_playground/tree/reverse_wrapper_approach
+
+Non-DCI, but still aiming to capture some of the valuable ideas from it:
+
+- "Entity - UseCase - Wrapper": https://github.com/alexbalmus/euw
+
 
 More info:
 

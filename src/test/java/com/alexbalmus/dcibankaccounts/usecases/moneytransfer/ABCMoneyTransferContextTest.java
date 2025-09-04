@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 
 @Test
-public class ABCMoneyTransferServiceTest
+public class ABCMoneyTransferContextTest
 {
     @Test
     public void testExecuteSourceToDestinationTransfer()
@@ -20,7 +20,7 @@ public class ABCMoneyTransferServiceTest
         var destination = new Account(200.0);
         destination.setId(3L);
 
-        var moneyTransferService = new MoneyTransferService<>();
+        var moneyTransferService = new MoneyTransferContext();
 
         moneyTransferService.executeSourceToIntermediaryToDestinationTransfer(50.0, source, destination, intermediary);
 

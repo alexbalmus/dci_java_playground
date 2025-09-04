@@ -1,14 +1,10 @@
 package com.alexbalmus.dcibankaccounts.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.Data;
+import jakarta.persistence.*;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name="account")
 public class Account
@@ -39,12 +35,7 @@ public class Account
         balance -= amount;
     }
 
-
-// Implementing equals and hashCode for JPA & Hibernate entities:
-//
-// https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-// https://thorben-janssen.com/ultimate-guide-to-implementing-equals-and-hashcode-with-hibernate/
-// https://jpa-buddy.com/blog/hopefully-the-final-article-about-equals-and-hashcode-for-jpa-entities-with-db-generated-ids/
+    // equals and hashCode for JPA based on tutorials from Vlad Mihalcea and Thorben Janssen:
 
     @Override
     public boolean equals(Object o)
