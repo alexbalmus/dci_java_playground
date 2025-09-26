@@ -1,13 +1,16 @@
-package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
+package com.alexbalmus.javadci.examples.bankaccounts.usecases.moneytransfer;
 
 import lombok.experimental.ExtensionMethod;
 
-import com.alexbalmus.dcibankaccounts.entities.Account;
+import com.alexbalmus.javadci.common.DciContext;
+import com.alexbalmus.javadci.common.DciRole;
+import com.alexbalmus.javadci.examples.bankaccounts.entities.Account;
 
 /**
  * Money transfer DCI context.
- * Uses extension method MoneyTransferContext.Account_Source#transfer
+ * Uses extension method MoneyTransferContext.Account_Source#transfer.
  */
+@DciContext
 @ExtensionMethod(MoneyTransferContext.Account_Source.class)
 public class MoneyTransferContext
 {
@@ -42,6 +45,7 @@ public class MoneyTransferContext
      * Account_Source role
      * Uses extension method MoneyTransferContext.Account_Destination#receive
      */
+    @DciRole
     @ExtensionMethod(MoneyTransferContext.Account_Destination.class)
     static class Account_Source
     {
@@ -62,6 +66,7 @@ public class MoneyTransferContext
     /**
      * Account_Destination role
      */
+    @DciRole
     static class Account_Destination
     {
         @SuppressWarnings("unused")

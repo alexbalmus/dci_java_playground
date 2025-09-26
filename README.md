@@ -21,7 +21,7 @@ Approach taken here: extension methods provided by Project Lombok: https://proje
 
 In this example, "Data" is represented by simple JPA entities of type Account:
 
-com.alexbalmus.dcibankaccounts.entities.Account:
+com.alexbalmus.javadci.examples.bankaccounts.entities.Account:
 
 ```java
 @Entity
@@ -53,13 +53,14 @@ public class Account
 
 The following are two roles used in a money transfer scenario: the "source account" role and the "destination account" role:
 
-com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext.Account_Source:
+com.alexbalmus.javadci.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext.Account_Source:
 
 ```java
     /**
      * Account_Source role
      * Uses extension method MoneyTransferContext.Account_Destination#receive
      */
+    @DciRole
     @ExtensionMethod(MoneyTransferContext.Account_Destination.class)
     static class Account_Source
     {
@@ -77,15 +78,19 @@ com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext.Accou
         }
     }
 ```
+The Lombok annotation @ExtensionMethod specifies that this class will use the extension method defined in Account_Destination.
+
+The custom annotation @DciRole is a marker to better identify DCI roles.
 
 Notice how "destination" gains the new (contextual) extension method called "receive", which is defined below:
 
-com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext.Account_Destination:
+com.alexbalmus.javadci.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext.Account_Destination:
 
 ```java
     /**
      * Account_Destination role
      */
+    @DciRole
     static class Account_Destination
     {
         @SuppressWarnings("unused")
@@ -96,15 +101,16 @@ com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext.Accou
     }
 ```
 
-The context would select the objects participating in the use case and call the necessary role methods:
+The context gathers the objects participating in the use case and calls the necessary role methods:
 
-com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext.executeSourceToDestinationTransfer:
+com.alexbalmus.javadci.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext:
 
 ```java
 /**
  * Money transfer DCI context.
  * Uses extension method MoneyTransferContext.Account_Source#transfer
  */
+@DciContext
 @ExtensionMethod(MoneyTransferContext.Account_Source.class)
 public class MoneyTransferContext
 {
@@ -124,6 +130,10 @@ public class MoneyTransferContext
     // Other code omitted for brevity.
 }
 ```
+
+The Lombok annotation @ExtensionMethod specifies that this class will use the extension method defined in Account_Source.
+
+The custom annotation @DciContext is a marker to better identify DCI Contexts. For convenience, it's also shaped as a custom stereotype for Spring's @Component.
 
 Notice how "source" gains the new (contextual) extension method called "transfer".
 

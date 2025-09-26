@@ -1,22 +1,23 @@
-package com.alexbalmus.dcibankaccounts;
+package com.alexbalmus.javadci.examples.bankaccounts;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.alexbalmus.dcibankaccounts.entities.Account;
-import com.alexbalmus.dcibankaccounts.repositories.AccountsRepository;
-import com.alexbalmus.dcibankaccounts.usecases.moneytransfer.MoneyTransferContext;
+import com.alexbalmus.javadci.examples.bankaccounts.entities.Account;
+import com.alexbalmus.javadci.examples.bankaccounts.repositories.AccountsRepository;
+import com.alexbalmus.javadci.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext;
 
 @Component
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class BankAccountsExample
 {
-    @Autowired
-    AccountsRepository accountsRepository;
+    private final AccountsRepository accountsRepository;
+    private final MoneyTransferContext moneyTransferContext;
 
     @Transactional
     public Pair<Long, Long> executeAToBMoneyTransferScenario()
@@ -28,8 +29,6 @@ public class BankAccountsExample
         var destination = new Account(200.0);
         accountsRepository.save(destination);
         System.out.println("Destination account: " + destination.getBalance());
-
-        var moneyTransferContext = new MoneyTransferContext();
 
         System.out.println("Transferring 50 from Source to Destination.");
         moneyTransferContext.executeSourceToDestinationTransfer(50.0, source, destination);
@@ -61,7 +60,6 @@ public class BankAccountsExample
         accountsRepository.save(destination);
         System.out.println("Destination account: " + destination.getBalance());
 
-        var moneyTransferContext = new MoneyTransferContext();
 
         System.out.println("Transferring 50 from Source to Destination via Intermediary.");
         moneyTransferContext.executeSourceToIntermediaryToDestinationTransfer(50.0, source, destination, intermediary);

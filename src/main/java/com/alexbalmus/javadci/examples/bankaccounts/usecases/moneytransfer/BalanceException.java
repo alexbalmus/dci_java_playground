@@ -1,4 +1,4 @@
-package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
+package com.alexbalmus.javadci.examples.bankaccounts.usecases.moneytransfer;
 
 class BalanceException extends RuntimeException
 {

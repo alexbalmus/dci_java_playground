@@ -1,6 +1,7 @@
 package com.alexbalmus.dcibankaccounts.usecases.moneytransfer;
 
-import com.alexbalmus.dcibankaccounts.entities.Account;
+import com.alexbalmus.javadci.examples.bankaccounts.entities.Account;
+import com.alexbalmus.javadci.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;

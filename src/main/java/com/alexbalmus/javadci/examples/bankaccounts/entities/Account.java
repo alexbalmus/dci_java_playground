@@ -1,4 +1,4 @@
-package com.alexbalmus.dcibankaccounts.entities;
+package com.alexbalmus.javadci.examples.bankaccounts.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
