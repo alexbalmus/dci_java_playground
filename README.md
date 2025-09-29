@@ -21,7 +21,7 @@ Approach taken here: extension methods provided by Project Lombok: https://proje
 
 In this example, "Data" is represented by simple JPA entities of type Account:
 
-com.alexbalmus.javadci.examples.bankaccounts.entities.Account:
+[Account](https://github.com/alexbalmus/dci_java_playground/blob/ext_method_lombok_approach/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/entities/Account.java):
 
 ```java
 @Entity
@@ -53,7 +53,7 @@ public class Account
 
 The following are two roles used in a money transfer scenario: the "source account" role and the "destination account" role:
 
-com.alexbalmus.javadci.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext.Account_Source:
+[MoneyTransferContext.Account_Source](https://github.com/alexbalmus/dci_java_playground/blob/ext_method_lombok_approach/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L50):
 
 ```java
     /**
@@ -84,7 +84,7 @@ The custom annotation @DciRole is a marker to better identify DCI roles.
 
 Notice how "destination" gains the new (contextual) extension method called "receive", which is defined below:
 
-com.alexbalmus.javadci.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext.Account_Destination:
+[MoneyTransferContext.Account_Destination](https://github.com/alexbalmus/dci_java_playground/blob/ext_method_lombok_approach/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L70):
 
 ```java
     /**
@@ -103,7 +103,7 @@ com.alexbalmus.javadci.examples.bankaccounts.usecases.moneytransfer.MoneyTransfe
 
 The context gathers the objects participating in the use case and calls the necessary role methods:
 
-com.alexbalmus.javadci.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext:
+[MoneyTransferContext](https://github.com/alexbalmus/dci_java_playground/blob/ext_method_lombok_approach/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L22):
 
 ```java
 /**
@@ -142,15 +142,15 @@ Other approaches I've tried:
 
 DCI candidates (not necessarily compliant):
 
-- The "method reference" approach: https://github.com/alexbalmus/dci_java_playground/tree/method_reference_approach
+- [The "method reference" approach](https://github.com/alexbalmus/dci_java_playground/tree/method_reference_approach)
 
-- The "method naming" approach: https://github.com/alexbalmus/dci_java_playground/tree/method_naming_approach
+- [The "method naming" approach](https://github.com/alexbalmus/dci_java_playground/tree/method_naming_approach)
 
-- The "reverse wrapper" approach: https://github.com/alexbalmus/dci_java_playground/tree/reverse_wrapper_approach
+- [The "reverse wrapper" approach](https://github.com/alexbalmus/dci_java_playground/tree/reverse_wrapper_approach)
 
 Non-DCI, but still aiming to capture some of the valuable ideas from it:
 
-- "Entity - UseCase - Wrapper": https://github.com/alexbalmus/euw
+- ["Entity - UseCase - Wrapper"](https://github.com/alexbalmus/euw)
 
 
 More info:
