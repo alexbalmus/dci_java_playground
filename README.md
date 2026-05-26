@@ -26,7 +26,7 @@ Approach taken here: extension methods provided by Project Lombok: https://proje
 
 In this example, "Data" is represented by simple JPA entities of type Account:
 
-[Account](https://github.com/alexbalmus/dci_java_playground/blob/ext_method_lombok_approach/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/entities/Account.java):
+[Account](https://github.com/alexbalmus/dci_java_playground/blob/main/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/entities/Account.java):
 
 ```java
 @Entity
@@ -62,7 +62,7 @@ public class Account
 
 The following are two roles used in a money transfer scenario: the "source account" role and the "destination account" role:
 
-[MoneyTransferContext.Account_Source](https://github.com/alexbalmus/dci_java_playground/blob/ext_method_lombok_approach/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L48):
+[MoneyTransferContext.Account_Source](https://github.com/alexbalmus/dci_java_playground/blob/main/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L48):
 
 ```java
     /**
@@ -87,7 +87,7 @@ The custom annotation @DciRole is a marker to better identify DCI roles.
 
 Notice how "destination" gains the new (contextual) extension method called "receive", which is defined below:
 
-[MoneyTransferContext.Account_Destination](https://github.com/alexbalmus/dci_java_playground/blob/ext_method_lombok_approach/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L62):
+[MoneyTransferContext.Account_Destination](https://github.com/alexbalmus/dci_java_playground/blob/main/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L62):
 
 ```java
     /**
@@ -106,7 +106,7 @@ Notice how "destination" gains the new (contextual) extension method called "rec
 
 The context gathers the objects participating in the use case and calls the necessary role methods:
 
-[MoneyTransferContext](https://github.com/alexbalmus/dci_java_playground/blob/ext_method_lombok_approach/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L20):
+[MoneyTransferContext](https://github.com/alexbalmus/dci_java_playground/blob/main/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L20):
 
 ```java
 /**
