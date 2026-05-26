@@ -3,6 +3,11 @@
 If you are new to Data-Context-Interaction, then it's recommended you read the following article first:
 https://fulloo.info/Documents/ArtimaDCI.html
 
+Running the example:
+- tested with JDK 25 & Maven 3.9.15
+- building: mvn package
+- running: mvn spring-boot:run
+
 DCI is a valuable (but not very well known) software design & architecture approach and OOP paradigm shift. 
 
 Some key ideas:
@@ -44,6 +49,10 @@ public class Account
 
     public void decreaseBalanceBy(final Double amount)
     {
+        if (balance < amount)
+        {
+            throw new BalanceException(INSUFFICIENT_FUNDS);
+        }
         balance -= amount;
     }
     
@@ -53,7 +62,7 @@ public class Account
 
 The following are two roles used in a money transfer scenario: the "source account" role and the "destination account" role:
 
-[MoneyTransferContext.Account_Source](https://github.com/alexbalmus/dci_java_playground/blob/ext_method_lombok_approach/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L50):
+[MoneyTransferContext.Account_Source](https://github.com/alexbalmus/dci_java_playground/blob/ext_method_lombok_approach/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L48):
 
 ```java
     /**
@@ -67,13 +76,7 @@ The following are two roles used in a money transfer scenario: the "source accou
         @SuppressWarnings("unused")
         public static void transfer(Account thiz, Account destination, Double amount)
         {
-            if (thiz.getBalance() < amount)
-            {
-                throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
-            }
-    
             thiz.decreaseBalanceBy(amount);
-    
             destination.receive(amount);
         }
     }
@@ -84,7 +87,7 @@ The custom annotation @DciRole is a marker to better identify DCI roles.
 
 Notice how "destination" gains the new (contextual) extension method called "receive", which is defined below:
 
-[MoneyTransferContext.Account_Destination](https://github.com/alexbalmus/dci_java_playground/blob/ext_method_lombok_approach/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L70):
+[MoneyTransferContext.Account_Destination](https://github.com/alexbalmus/dci_java_playground/blob/ext_method_lombok_approach/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L62):
 
 ```java
     /**
@@ -103,7 +106,7 @@ Notice how "destination" gains the new (contextual) extension method called "rec
 
 The context gathers the objects participating in the use case and calls the necessary role methods:
 
-[MoneyTransferContext](https://github.com/alexbalmus/dci_java_playground/blob/ext_method_lombok_approach/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L22):
+[MoneyTransferContext](https://github.com/alexbalmus/dci_java_playground/blob/ext_method_lombok_approach/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L20):
 
 ```java
 /**
@@ -140,7 +143,11 @@ Notice how "source" gains the new (contextual) extension method called "transfer
 
 Other approaches I've tried:
 
-DCI candidates (not necessarily compliant):
+Non-DCI, but still aiming to capture some of the valuable ideas from it:
+
+- ["Entity - UseCase - Wrapper"](https://github.com/alexbalmus/euw)
+
+Other DCI candidates (not necessarily compliant):
 
 - [The "method reference" approach](https://github.com/alexbalmus/dci_java_playground/tree/method_reference_approach)
 
@@ -148,12 +155,8 @@ DCI candidates (not necessarily compliant):
 
 - [The "reverse wrapper" approach](https://github.com/alexbalmus/dci_java_playground/tree/reverse_wrapper_approach)
 
-Non-DCI, but still aiming to capture some of the valuable ideas from it:
 
-- ["Entity - UseCase - Wrapper"](https://github.com/alexbalmus/euw)
-
-
-More info:
+References:
 
 https://fulloo.info/ 
 

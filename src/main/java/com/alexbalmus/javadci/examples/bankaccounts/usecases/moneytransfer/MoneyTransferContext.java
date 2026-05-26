@@ -14,8 +14,6 @@ import com.alexbalmus.javadci.examples.bankaccounts.entities.Account;
 @ExtensionMethod(MoneyTransferContext.Account_Source.class)
 public class MoneyTransferContext
 {
-    public static final String INSUFFICIENT_FUNDS = "Insufficient funds.";
-
     /**
      * DCI context (use case): transfer amount from source account to destination account
      */
@@ -52,13 +50,7 @@ public class MoneyTransferContext
         @SuppressWarnings("unused")
         public static void transfer(Account thiz, Account destination, Double amount)
         {
-            if (thiz.getBalance() < amount)
-            {
-                throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
-            }
-
             thiz.decreaseBalanceBy(amount);
-
             destination.receive(amount);
         }
     }

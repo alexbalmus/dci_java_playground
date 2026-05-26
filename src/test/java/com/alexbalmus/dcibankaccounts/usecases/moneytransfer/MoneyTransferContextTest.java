@@ -12,11 +12,8 @@ public class MoneyTransferContextTest
     @Test
     public void testExecuteSourceToDestinationTransfer()
     {
-        var source = new Account(100.0);
-        source.setId(1L);
-
-        var destination = new SpecialAccount(200.0);
-        destination.setId(2L);
+        var source = new Account(1L, 100.0);
+        var destination = new SpecialAccount(2L, 200.0);
 
         var moneyTransferService = new MoneyTransferContext();
 
@@ -29,11 +26,8 @@ public class MoneyTransferContextTest
     @Test
     public void testExecuteInsufficientFunds()
     {
-        var source = new Account(20.0);
-        source.setId(1L);
-
-        var destination = new Account(200.0);
-        destination.setId(2L);
+        var source = new Account(1L, 20.0);
+        var destination = new Account(2L, 200.0);
 
         var moneyTransferService = new MoneyTransferContext();
 
@@ -44,15 +38,15 @@ public class MoneyTransferContextTest
         }
         catch (RuntimeException e)
         {
-            assertEquals(e.getMessage(), MoneyTransferContext.INSUFFICIENT_FUNDS);
+            assertEquals(e.getMessage(), Account.INSUFFICIENT_FUNDS);
         }
     }
 
     static class SpecialAccount extends Account
     {
-        public SpecialAccount(Double balance)
+        public SpecialAccount(Long id, Double balance)
         {
-            super(balance);
+            super(id, balance);
         }
     }
 }
