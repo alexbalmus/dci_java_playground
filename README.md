@@ -40,15 +40,17 @@ public class Account
     @Column(name = "balance")
     private Double balance;
 
-    // Constructors, getters and setters omitted for brevity.
+    // Constructors and getters omitted for brevity.
 
     public void increaseBalanceBy(final Double amount)
     {
+        validateAmount(amount);
         balance += amount;
     }
 
     public void decreaseBalanceBy(final Double amount)
     {
+        validateAmount(amount);
         if (balance < amount)
         {
             throw new BalanceException(INSUFFICIENT_FUNDS);
@@ -56,7 +58,7 @@ public class Account
         balance -= amount;
     }
     
-    // equals and hashCode omitted for brevity.
+    // Private methods, equals and hashCode omitted for brevity.
 }
 ```
 
