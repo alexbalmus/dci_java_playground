@@ -65,6 +65,9 @@ public class Account
 }
 ```
 
+Disclaimer: this example is solely for the purpose of showcasing DCI in a simple way and therefore it should not be viewed as a reference implementation for an actual banking system.
+
+
 The following are two roles used in a money transfer scenario: the "source account" role and the "destination account" role:
 
 [MoneyTransferContext.Account_Source](https://github.com/alexbalmus/dci_java_playground/blob/main/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L48):
