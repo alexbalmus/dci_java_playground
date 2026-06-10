@@ -33,6 +33,9 @@ In this example, "Data" is represented by simple JPA entities of type Account:
 @Table(name="account")
 public class Account
 {
+    public static final String INSUFFICIENT_FUNDS = "Insufficient funds.";
+    public static final String INVALID_AMOUNT = "Amount must be a positive finite value.";
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
@@ -78,6 +81,10 @@ The following are two roles used in a money transfer scenario: the "source accou
         @SuppressWarnings("unused")
         public static void transfer(Account thiz, Account destination, Double amount)
         {
+            if (thiz == destination)
+            {
+                throw new IllegalArgumentException("Source and destination accounts cannot be the same.");
+            }
             thiz.decreaseBalanceBy(amount);
             destination.receive(amount);
         }
@@ -89,7 +96,7 @@ The custom annotation @DciRole is a marker to better identify DCI roles.
 
 Notice how "destination" gains the new (contextual) extension method called "receive", which is defined below:
 
-[MoneyTransferContext.Account_Destination](https://github.com/alexbalmus/dci_java_playground/blob/main/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L62):
+[MoneyTransferContext.Account_Destination](https://github.com/alexbalmus/dci_java_playground/blob/main/src/main/java/com/alexbalmus/javadci/examples/bankaccounts/usecases/moneytransfer/MoneyTransferContext.java#L66):
 
 ```java
     /**
@@ -119,8 +126,6 @@ The context gathers the objects participating in the use case and calls the nece
 @ExtensionMethod(MoneyTransferContext.Account_Source.class)
 public class MoneyTransferContext
 {
-    public static final String INSUFFICIENT_FUNDS = "Insufficient funds.";
-
     /**
      * DCI context (use case): transfer amount from source account to destination account
      */

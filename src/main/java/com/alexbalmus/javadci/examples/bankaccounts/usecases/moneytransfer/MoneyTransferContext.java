@@ -50,6 +50,10 @@ public class MoneyTransferContext
         @SuppressWarnings("unused")
         public static void transfer(Account thiz, Account destination, Double amount)
         {
+            if (thiz == destination)
+            {
+                throw new IllegalArgumentException("Source and destination accounts cannot be the same.");
+            }
             thiz.decreaseBalanceBy(amount);
             destination.receive(amount);
         }
