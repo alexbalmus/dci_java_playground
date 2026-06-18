@@ -54,7 +54,7 @@ public class MoneyTransferContext
             {
                 throw new IllegalArgumentException("Source and destination accounts cannot be the same.");
             }
-            thiz.decreaseBalanceBy(amount);
+            thiz.withdraw(amount);
             destination.receive(amount);
         }
     }
@@ -68,7 +68,7 @@ public class MoneyTransferContext
         @SuppressWarnings("unused")
         public static void receive(Account thiz, Double amount)
         {
-            thiz.increaseBalanceBy(amount);
+            thiz.deposit(amount);
         }
     }
 }

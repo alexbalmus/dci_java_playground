@@ -45,13 +45,13 @@ public class Account
 
     // Constructors and getters omitted for brevity.
 
-    public void increaseBalanceBy(final Double amount)
+    public void deposit(final Double amount)
     {
         validateAmount(amount);
         balance += amount;
     }
 
-    public void decreaseBalanceBy(final Double amount)
+    public void withdraw(final Double amount)
     {
         validateAmount(amount);
         if (balance < amount)
@@ -88,7 +88,7 @@ The following are two roles used in a money transfer scenario: the "source accou
             {
                 throw new IllegalArgumentException("Source and destination accounts cannot be the same.");
             }
-            thiz.decreaseBalanceBy(amount);
+            thiz.withdraw(amount);
             destination.receive(amount);
         }
     }
@@ -111,7 +111,7 @@ Notice how "destination" gains the new (contextual) extension method called "rec
         @SuppressWarnings("unused")
         public static void receive(Account thiz, Double amount)
         {
-            thiz.increaseBalanceBy(amount);
+            thiz.deposit(amount);
         }
     }
 ```
